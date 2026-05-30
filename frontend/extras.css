@@ -1,0 +1,385 @@
+/* extras.css — classes used by the screens that aren't in the design's styles.css.
+   Honors all design tokens (--accent, --panel, --ink, --line, --warn, --err, etc.). */
+
+/* ── layout primitives ─────────────────────────────────────── */
+.screen {
+  padding: 24px 28px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1640px;
+  width: 100%;
+  margin: 0 auto;
+}
+.screen-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.screen-head h1 { margin: 0 0 4px; }
+
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+@media (max-width: 960px)  { .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 680px)  { .screen { padding: 14px 14px 40px; } }
+
+/* ── card ─────────────────────────────────────────────────── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.card-head h3 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
+
+/* ── KPI row ─────────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--density-pad);
+}
+.kpi {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--density-pad) calc(var(--density-pad) + 2px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ── tabs ──────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.tab {
+  background: transparent;
+  border: none;
+  color: var(--ink-3);
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  text-transform: capitalize;
+}
+.tab:hover { color: var(--ink-2); }
+.tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* ── typography helpers ────────────────────────────────── */
+.t-mono { font-family: var(--font-mono); }
+.t-muted { color: var(--ink-3); }
+.t-err { color: var(--err); }
+.t-ok { color: var(--accent); }
+.t-warn { color: var(--warn); }
+.t-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.t-small { font-size: 12px; }
+
+/* ── inputs / fields ─────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex: 1;
+}
+.field-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+.field-hint { font-size: 12px; }
+
+.input-file {
+  font: inherit;
+  color: var(--ink-3);
+}
+.input-file::file-selector-button {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  padding: 6px 10px;
+  cursor: pointer;
+  font: inherit;
+  margin-right: 8px;
+}
+
+/* ── progress bar ───────────────────────────────────────── */
+.progress {
+  height: 8px;
+  background: var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress.small { height: 4px; }
+.progress > div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.18s linear;
+}
+
+/* ── dropzone (file upload) ─────────────────────────────── */
+.dropzone {
+  position: relative;
+  border: 1px dashed var(--line-2, var(--line));
+  border-radius: var(--radius);
+  padding: 24px;
+  background: var(--panel-2, var(--panel));
+  text-align: center;
+}
+.dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.dropzone label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+
+/* ── verification list ──────────────────────────────────── */
+.verify-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.verify-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2, var(--panel));
+}
+.verify-step.ok   { border-color: color-mix(in oklab, var(--accent) 30%, var(--line)); }
+.verify-step.warn { border-color: color-mix(in oklab, var(--warn)   30%, var(--line)); }
+.verify-step.err  { border-color: color-mix(in oklab, var(--err)    30%, var(--line)); }
+.vstep-mark {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+.vstep-mark.ok   { color: var(--accent); }
+.vstep-mark.warn { color: var(--warn); }
+.vstep-mark.err  { color: var(--err); }
+
+/* ── definition list ─────────────────────────────────────── */
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0;
+}
+.kv dt { color: var(--ink-3); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; align-self: center; }
+.kv dd { margin: 0; color: var(--ink); }
+
+/* ── code & log boxes ────────────────────────────────────── */
+.codeblock, .logbox {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-2, var(--bg));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  overflow: auto;
+  max-height: 480px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+.logbox { background: var(--bg); }
+.logline { display: block; padding: 1px 0; }
+.logline.err  { color: var(--err); }
+.logline.warn { color: var(--warn); }
+.logline.ok   { color: var(--accent); }
+
+/* ── error panel / empty state ──────────────────────────── */
+.err-panel {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in oklab, var(--err) 40%, var(--line));
+  border-radius: var(--radius);
+  background: color-mix(in oklab, var(--err) 8%, var(--panel));
+  color: var(--err);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--ink-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── mode picker cards ──────────────────────────────────── */
+.mode-card { padding: 16px; }
+.mode-head { display: flex; align-items: center; gap: 8px; }
+.mode-head h2 { margin: 0; font-size: 16px; }
+
+/* ── mode option button (Add Inventory tiles) ───────────── */
+.mode-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s, background 0.12s;
+}
+.mode-btn:hover {
+  border-color: var(--line-2);
+  background: var(--panel-2);
+}
+.mode-btn svg { flex-shrink: 0; color: var(--ink-3); margin-top: 2px; }
+.mode-btn b { display: block; font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--ink); }
+.mode-btn .t-muted { font-size: 12px; line-height: 1.4; }
+
+.opt-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.opt-card:hover { border-color: var(--line-2, var(--ink-4, var(--line))); }
+.opt-card.selected {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 6%, var(--panel));
+}
+.opt-card input[type="checkbox"] { margin-top: 4px; }
+
+/* ── table tweaks (selected row + compact) ──────────────── */
+.table tr.selected { background: color-mix(in oklab, var(--accent) 6%, transparent); }
+.table.compact th, .table.compact td { padding: 6px 8px; font-size: 13px; }
+.table tr.row-clickable { cursor: pointer; transition: background 90ms ease; }
+.table tr.row-clickable:hover { background: color-mix(in oklab, var(--accent) 6%, transparent); }
+
+/* ── spinner ────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: hp-spin 0.8s linear infinite;
+  vertical-align: -3px;
+  margin-right: 6px;
+}
+@keyframes hp-spin { to { transform: rotate(360deg); } }
+
+/* ── table base + overflow ───────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th {
+  /* horizontal padding stays constant; vertical breathing room follows
+     `data-density` (compact 8 / regular 12 / comfy 16) */
+  padding: calc(var(--density-pad) * 0.66) 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--line);
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--panel);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.table td {
+  padding: calc(var(--density-pad) * 0.66) 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2);
+  vertical-align: middle;
+  height: var(--density-row);
+}
+.table tbody tr:hover td { background: var(--panel-2); color: var(--ink); }
+.table tbody tr:last-child td { border-bottom: none; }
+
+/* Tables always span the full width of their card / screen. For wider-than-card
+   datasets we use `.table-scroll` wrapper instead (see below) — the old
+   display:block + overflow-x:auto pattern broke width:100% inside flex columns. */
+.card > .table,
+.screen > .table {
+  width: 100%;
+}
+
+/* Opt-in wrapper for genuinely-wide tables that need horizontal scroll on
+   narrow viewports. Usage: <div className="table-scroll"><table className="table">…</table></div> */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll > .table { min-width: max-content; }
+
+/* ── responsive app shell ────────────────────────────────── */
+@media (max-width: 960px) {
+  :root { --sidebar-w: 190px; }
+  .tb-search { min-width: 180px; }
+}
+@media (max-width: 680px) {
+  :root { --sidebar-w: 0px; --topbar-h: 44px; }
+  .app__sidebar { display: none; }
+  .app { grid-template-columns: 1fr; }
+  .app__topbar { grid-column: 1; }
+  .app__main   { grid-column: 1; }
+  .kpi-row { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+}

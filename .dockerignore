@@ -1,0 +1,42 @@
+# Local-dev artifacts that bloat the build context or break inside the image.
+.git
+.gitignore
+.github
+
+# Virtualenvs / build outputs
+venv
+.venv
+env
+.env
+*.egg-info
+dist
+build
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+
+# Local runtime state — the container provides /data via a volume
+data
+data/**
+*.db
+*.db-wal
+*.db-shm
+
+# IDE / OS noise
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+
+# Test artefacts
+.pytest_cache
+.coverage
+htmlcov
+
+# Docs build context — README is fine but skip the bundle of MD files since
+# they're not needed at runtime
+docs
+
+# Helper that's irrelevant inside the container
+start.bat

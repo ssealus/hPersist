@@ -1,0 +1,166 @@
+{
+  "_meta": {
+    "name": "English",
+    "native": "English",
+    "code": "en"
+  },
+  "app": {
+    "name": "hPersist",
+    "tagline": "HPE server inventory · iLO 4/5/6",
+    "search_placeholder": "Search inventories, hosts, parts, PN…",
+    "status_ready": "Ready",
+    "status_running": "Running",
+    "version": "Version"
+  },
+  "nav": {
+    "overview": "Overview",
+    "dashboard": "Dashboard",
+    "inventories": "Inventories",
+    "all_servers": "All servers",
+    "add_inventory": "Add inventory",
+    "results": "Results",
+    "exports": "Export",
+    "tools": "Tools",
+    "stats": "Stats",
+    "settings": "Settings",
+    "system": "System"
+  },
+  "settings_page": {
+    "appearance": "Appearance",
+    "language": "Language"
+  },
+  "overview": {
+    "title": "Fleet overview",
+    "subtitle": "Real-time snapshot of everything hPersist has touched",
+    "servers": "Servers",
+    "inventories": "Inventories",
+    "components": "Components",
+    "avg_collection": "Average collection · seconds",
+    "health": "Health",
+    "models": "Models",
+    "ilo_firmware": "iLO firmware",
+    "memory_config": "Memory configurations",
+    "recent_runs": "Recent runs",
+    "empty": "No inventories yet — head to Add inventory to get started."
+  },
+  "add_inventory": {
+    "title": "Add inventory",
+    "subtitle": "Two paths: collect directly from your network or hand off to remote Smart Hands.",
+    "mode_local": "Local collection",
+    "mode_local_desc": "Run the collector from this machine. Requires reachability to iLOs.",
+    "mode_smart_hands": "Smart Hands",
+    "mode_smart_hands_desc": "Generate a self-contained collector for the customer site, ingest the result later.",
+    "submode_cidr": "CIDR scan",
+    "submode_cidr_desc": "Find iLOs on a subnet first, then collect the ones you pick.",
+    "submode_csv": "CSV upload",
+    "submode_csv_desc": "You already know the hosts — paste a list with credentials.",
+    "submode_generate": "Generate collector",
+    "submode_generate_desc": "Ship a portable archive to the remote engineer.",
+    "submode_process": "Process results",
+    "submode_process_desc": "Drop a returned .hpr file to verify, ingest and analyze.",
+    "fields": {
+      "name": "Inventory name",
+      "name_placeholder": "e.g. Frankfurt Q2 audit",
+      "organization": "Organization",
+      "organization_placeholder": "Customer name (optional)",
+      "description": "Description",
+      "description_placeholder": "Short note for context (optional)",
+      "cidr": "CIDR range",
+      "cidr_placeholder": "10.0.0.0/24",
+      "default_login": "Default username",
+      "default_password": "Default password",
+      "concurrency": "Concurrency",
+      "timeout": "Timeout (s)",
+      "tls": "TLS verification"
+    },
+    "csv": {
+      "title": "Inventory CSV",
+      "hint": "Required columns: ip, login, password. Optional: hostname.",
+      "template": "Use template",
+      "preview": "Preview",
+      "errors": "{count} error(s)",
+      "warnings": "{count} warning(s)",
+      "valid": "{count} valid host(s)"
+    },
+    "actions": {
+      "scan": "Start scan",
+      "validate": "Validate CSV",
+      "start": "Start collection",
+      "generate": "Generate archive",
+      "process": "Process file"
+    },
+    "submitted": "Collection started · streaming live progress."
+  },
+  "progress": {
+    "title": "Collection progress",
+    "queued": "Queued",
+    "auth": "Authenticating",
+    "probe": "Probing Redfish",
+    "fetch": "Fetching data",
+    "persist": "Saving",
+    "done": "Done",
+    "error": "Error",
+    "elapsed": "Elapsed",
+    "completed_of": "{done} / {total} completed",
+    "view_inventory": "View inventory"
+  },
+  "inventory_detail": {
+    "tab_overview": "Overview",
+    "tab_servers": "Servers",
+    "tab_parts": "Parts",
+    "tab_health": "Health",
+    "tab_logs": "Logs",
+    "tab_integrity": "Integrity",
+    "delete_confirm": "Delete this inventory? This cannot be undone.",
+    "delete": "Delete inventory",
+    "rerun": "Run again",
+    "export": "Export",
+    "totals": "Totals",
+    "no_servers": "No servers in this inventory yet."
+  },
+  "server_detail": {
+    "back": "Back to inventory",
+    "components": "Components",
+    "raw_payload": "Raw Redfish payload",
+    "duration": "Collected in {seconds}s",
+    "no_components": "No components captured."
+  },
+  "smart_hands": {
+    "generate_title": "Generate Smart Hands collector",
+    "generate_subtitle": "Ship a portable archive. Engineer runs it, sends back results.hpr.",
+    "process_title": "Process Smart Hands result",
+    "process_subtitle": "Drop the returned .hpr file. We verify the signature chain and ingest.",
+    "archive_ready": "Archive ready",
+    "download": "Download archive",
+    "instructions": "Send this archive to the remote engineer with the README — it includes setup steps.",
+    "verification": {
+      "envelope": "Envelope structure",
+      "signature": "Metadata signature",
+      "chain": "Per-host hash chain",
+      "script": "Collector script integrity",
+      "schema": "Results schema",
+      "persist": "Persist to local sqlite"
+    },
+    "accepted": "Results accepted · view inventory",
+    "rejected": "Verification failed. See the steps above for the reason."
+  },
+  "tools": {
+    "title": "Tools",
+    "subtitle": "Operational utilities and quick diagnostics.",
+    "network_scanner": "Network scanner",
+    "redfish_tester": "Redfish tester"
+  },
+  "common": {
+    "ok": "OK",
+    "warn": "Warning",
+    "err": "Error",
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading…",
+    "no_data": "No data yet.",
+    "copied": "Copied to clipboard",
+    "back": "Back"
+  }
+}

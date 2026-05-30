@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Data directory (SQLite DB, logs, archives, uploads)
+data/
+
+# Environment overrides — keep .env.example tracked
+.env
+
+# Tool caches (pytest / coverage / type-checkers / linters)
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Dev-only helpers (data seeders, throwaway test scripts)
+.seed_demo.sh
+.test_*.sh
+
+# Editor / IDE / OS
+.claude/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-direction="console" data-density="regular">
+<head>
+  <meta charset="UTF-8" />
+  <title>hPersist — HPE configuration collector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20" />
+  <link rel="stylesheet" href="extras.css?v=20" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <!-- API client (vanilla JS, must load before any JSX) -->
+  <script src="api.js"></script>
+
+  <!-- ── design system primitives ── -->
+  <script type="text/babel" src="tweaks-panel.jsx?v=20"></script>
+  <script type="text/babel" src="icons.jsx?v=20"></script>
+
+  <!-- ── lib (shared widgets, charts, toast, command palette) ── -->
+  <script type="text/babel" src="lib/widgets.jsx?v=20"></script>
+  <script type="text/babel" src="lib/charts.jsx?v=20"></script>
+  <script type="text/babel" src="lib/toast.jsx?v=20"></script>
+  <script type="text/babel" src="lib/command-palette.jsx?v=20"></script>
+
+  <!-- ── app chrome (Sidebar, Topbar, useCrumbs) ── -->
+  <script type="text/babel" src="shell.jsx?v=20"></script>
+
+  <!-- ── screens (one route ≈ one file) ── -->
+  <script type="text/babel" src="screens/dashboard.jsx?v=20"></script>
+  <script type="text/babel" src="screens/inventories.jsx?v=20"></script>
+  <script type="text/babel" src="screens/servers.jsx?v=20"></script>
+  <script type="text/babel" src="screens/add-inventory.jsx?v=20"></script>
+  <script type="text/babel" src="screens/add-local.jsx?v=20"></script>
+  <script type="text/babel" src="screens/add-smarthands.jsx?v=20"></script>
+  <script type="text/babel" src="screens/progress.jsx?v=20"></script>
+  <script type="text/babel" src="screens/export.jsx?v=20"></script>
+  <script type="text/babel" src="screens/telemetry.jsx?v=20"></script>
+  <script type="text/babel" src="screens/settings.jsx?v=20"></script>
+  <script type="text/babel" src="screens/tool-scan.jsx?v=20"></script>
+  <script type="text/babel" src="screens/tool-redfish.jsx?v=20"></script>
+
+  <!-- ── root + router (must come last) ── -->
+  <script type="text/babel" src="app.jsx?v=20"></script>
+
+  <!-- Bootstrap -->
+  <script type="text/babel">
+    function tryMount() {
+      if (!window.__hPersistApp) { setTimeout(tryMount, 30); return; }
+      const App = window.__hPersistApp;
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    }
+    tryMount();
+  </script>
+</body>
+</html>
