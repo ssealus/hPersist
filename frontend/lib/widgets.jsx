@@ -60,14 +60,14 @@ function Sparkline({ points, h = 28 }) {
 
 function StatusPill({ status }) {
   const map = {
-    "complete":          { cls: "ok",      label: "Complete" },
-    "complete-warn":     { cls: "warn",    label: "Complete · warnings" },
-    "in-progress":       { cls: "info",    label: "In progress" },
-    "awaiting-results":  { cls: "outline", label: "Awaiting results" },
-    "failed":            { cls: "err",     label: "Failed" },
-    "ok":                { cls: "ok",      label: "Healthy" },
-    "warn":              { cls: "warn",    label: "Warning" },
-    "err":               { cls: "err",     label: "Critical" },
+    "complete":          { cls: "ok",      label: t("status.complete") },
+    "complete-warn":     { cls: "warn",    label: t("status.complete_warn") },
+    "in-progress":       { cls: "info",    label: t("status.in_progress") },
+    "awaiting-results":  { cls: "outline", label: t("status.awaiting_results") },
+    "failed":            { cls: "err",     label: t("status.failed") },
+    "ok":                { cls: "ok",      label: t("status.healthy") },
+    "warn":              { cls: "warn",    label: t("status.warning") },
+    "err":               { cls: "err",     label: t("status.critical") },
   };
   const s = map[status] || { cls: "outline", label: status };
   return <span className={"pill " + s.cls}><span className="dot" />{s.label}</span>;

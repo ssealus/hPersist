@@ -12,8 +12,8 @@ function InventoriesList({ go }) {
   );
 
   async function doDelete(inv) {
-    if (!confirm(`Delete inventory "${inv.name}"? This cannot be undone.`)) return;
-    try { await api.deleteInventory(inv.id); toast.push("Inventory deleted", "ok"); reload(); }
+    if (!confirm(t("inventories_list.delete_confirm").replace("{name}", inv.name))) return;
+    try { await api.deleteInventory(inv.id); toast.push(t("inventories_list.deleted_toast"), "ok"); reload(); }
     catch (e) { toast.push(e.message, "err"); }
   }
 
@@ -22,21 +22,21 @@ function InventoriesList({ go }) {
       <header className="screen-head">
         <h1 className="t-h1">{t("nav.inventories")}</h1>
         <div className="row" style={{gap:8}}>
-          <input className="input" placeholder="Filter by name or org…" value={filter} onChange={e => setFilter(e.target.value)} style={{width: 260}} />
-          <button className="btn primary" onClick={() => go("addinv")}><Icon.Plus /> New</button>
+          <input className="input" placeholder={t("inventories_list.filter_placeholder")} value={filter} onChange={e => setFilter(e.target.value)} style={{width: 260}} />
+          <button className="btn primary" onClick={() => go("addinv")}><Icon.Plus /> {t("common.new")}</button>
         </div>
       </header>
 
       {loading ? <Spinner /> : error ? <div className="err-panel">{error}</div> :
         rows.length === 0 ? (
           <div className="card empty">
-            <p>{filter ? "Nothing matches your filter." : "No inventories yet."}</p>
-            {!filter && <button className="btn primary" onClick={() => go("addinv")}><Icon.Plus /> Add inventory</button>}
+            <p>{filter ? t("inventories_list.no_match") : t("inventories_list.no_inventories")}</p>
+            {!filter && <button className="btn primary" onClick={() => go("addinv")}><Icon.Plus /> {t("nav.add_inventory")}</button>}
           </div>
         ) : (
           <table className="table">
             <thead><tr>
-              <th>Name</th><th>Org</th><th>Mode</th><th>Servers</th><th>Status</th><th>Integrity</th><th>Duration</th><th>Created</th><th></th>
+              <th>{t("inventories_list.col_name")}</th><th>{t("inventories_list.col_org")}</th><th>{t("inventories_list.col_mode")}</th><th>{t("inventories_list.col_servers")}</th><th>{t("inventories_list.col_status")}</th><th>{t("inventories_list.col_integrity")}</th><th>{t("inventories_list.col_duration")}</th><th>{t("inventories_list.col_created")}</th><th></th>
             </tr></thead>
             <tbody>
               {rows.map(i => (
@@ -44,12 +44,12 @@ function InventoriesList({ go }) {
                   <td onClick={() => go("inventories.detail", { id: i.id, name: i.name })} style={{cursor:"pointer"}}><b>{i.name}</b><div className="t-muted t-small">{i.description}</div></td>
                   <td className="t-muted">{i.organization || "—"}</td>
                   <td><span className="pill outline">{i.mode}{i.submode ? " · " + i.submode : ""}</span></td>
-                  <td className="t-num">{i.reached}/{i.servers}{i.failed ? <span className="t-err"> · {i.failed} failed</span> : null}</td>
+                  <td className="t-num">{i.reached}/{i.servers}{i.failed ? <span className="t-err"> · {i.failed} {t("inventories_list.failed_suffix")}</span> : null}</td>
                   <td><StatusPill status={i.status} /></td>
-                  <td>{i.integrity_status === "ok" ? <span className="pill ok"><span className="dot"/>verified</span> : i.integrity_status === "script-modified" ? <span className="pill warn"><span className="dot"/>script modified</span> : <span className="t-muted">—</span>}</td>
+                  <td>{i.integrity_status === "ok" ? <span className="pill ok"><span className="dot"/>{t("inventories_list.integrity_verified")}</span> : i.integrity_status === "script-modified" ? <span className="pill warn"><span className="dot"/>{t("inventories_list.integrity_script_modified")}</span> : <span className="t-muted">—</span>}</td>
                   <td className="t-num t-muted">{i.duration_seconds ? i.duration_seconds.toFixed(1) + "s" : "—"}</td>
                   <td className="t-muted t-mono">{(i.created_at || "").replace("T", " ")}</td>
-                  <td><button className="btn ghost sm" onClick={() => doDelete(i)} title="Delete"><Icon.Trash /></button></td>
+                  <td><button className="btn ghost sm" onClick={() => doDelete(i)} title={t("common.delete")}><Icon.Trash /></button></td>
                 </tr>
               ))}
             </tbody>
@@ -77,22 +77,22 @@ function InventoryDetail({ go, params }) {
       <header className="screen-head">
         <div>
           <h1 className="t-h1">{inv.name}</h1>
-          <div className="t-muted">{inv.organization || "—"} · {inv.description || "no description"}</div>
+          <div className="t-muted">{inv.organization || "—"} · {inv.description || t("inventory_detail.no_description")}</div>
         </div>
         <div className="row" style={{gap:8}}>
           <StatusPill status={inv.status} />
-          <button className="btn ghost sm" onClick={() => go("export.builder", { inventory_ids: [inv.id] })}><Icon.Download /> Export</button>
-          <button className="btn ghost sm" onClick={reload}><Icon.Refresh /> Refresh</button>
+          <button className="btn ghost sm" onClick={() => go("export.builder", { inventory_ids: [inv.id] })}><Icon.Download /> {t("inventory_detail.export")}</button>
+          <button className="btn ghost sm" onClick={reload}><Icon.Refresh /> {t("common.refresh")}</button>
         </div>
       </header>
 
       <section className="kpi-row">
-        <Kpi label="Servers" value={inv.totals.servers} />
-        <Kpi label="Components" value={inv.totals.component_count} />
-        <Kpi label="CPU cores" value={inv.totals.cpu_cores} />
-        <Kpi label="Memory · GB" value={inv.totals.memory_gb} />
-        <Kpi label="Storage · GB" value={inv.totals.storage_gb} />
-        <Kpi label="PSU · W" value={inv.totals.psu_rated_watts} />
+        <Kpi label={t("inventory_detail.kpi_servers")} value={inv.totals.servers} />
+        <Kpi label={t("inventory_detail.kpi_components")} value={inv.totals.component_count} />
+        <Kpi label={t("inventory_detail.kpi_cpu_cores")} value={inv.totals.cpu_cores} />
+        <Kpi label={t("inventory_detail.kpi_memory_gb")} value={inv.totals.memory_gb} />
+        <Kpi label={t("inventory_detail.kpi_storage_gb")} value={inv.totals.storage_gb} />
+        <Kpi label={t("inventory_detail.kpi_psu_w")} value={inv.totals.psu_rated_watts} />
       </section>
 
       <nav className="tabs">
@@ -110,7 +110,7 @@ function InventoryDetail({ go, params }) {
       {tab === "overview" && (
         <section className="grid grid-2">
           <div className="card">
-            <div className="card-head"><h3>Health</h3></div>
+            <div className="card-head"><h3>{t("inventory_detail.card_health")}</h3></div>
             <Donut segments={[
               { value: inv.health.ok,      color: "var(--accent)" },
               { value: inv.health.warn,    color: "var(--warn)" },
@@ -118,14 +118,14 @@ function InventoryDetail({ go, params }) {
               { value: inv.health.unknown, color: "var(--ink-3)" },
             ]} />
             <HBar items={[
-              { label: "OK", value: inv.health.ok, color: "var(--accent)" },
-              { label: "Warn", value: inv.health.warn, color: "var(--warn)" },
-              { label: "Err", value: inv.health.err, color: "var(--err)" },
-              { label: "Unknown", value: inv.health.unknown, color: "var(--ink-3)" },
+              { label: t("inventory_detail.health_ok"), value: inv.health.ok, color: "var(--accent)" },
+              { label: t("inventory_detail.health_warn"), value: inv.health.warn, color: "var(--warn)" },
+              { label: t("inventory_detail.health_err"), value: inv.health.err, color: "var(--err)" },
+              { label: t("inventory_detail.health_unknown"), value: inv.health.unknown, color: "var(--ink-3)" },
             ]} />
           </div>
           <div className="card">
-            <div className="card-head"><h3>Models</h3></div>
+            <div className="card-head"><h3>{t("inventory_detail.card_models")}</h3></div>
             <HBar items={Object.entries(inv.model_distribution).slice(0,8).map(([k, v]) => ({ label: k, value: v }))} />
           </div>
         </section>
@@ -134,7 +134,7 @@ function InventoryDetail({ go, params }) {
       {tab === "servers" && (
         <table className="table">
           <thead><tr>
-            <th>Hostname</th><th>iLO IP</th><th>Model</th><th>iLO</th><th>BIOS</th><th>Cores·GB·TB</th><th>Health</th><th>Status</th>
+            <th>{t("inventory_detail.col_hostname")}</th><th>{t("inventory_detail.col_ilo_ip")}</th><th>{t("inventory_detail.col_model")}</th><th>{t("inventory_detail.col_ilo")}</th><th>{t("inventory_detail.col_bios")}</th><th>{t("inventory_detail.col_cores_gb_tb")}</th><th>{t("inventory_detail.col_status_health")}</th><th>{t("inventory_detail.col_status")}</th>
           </tr></thead>
           <tbody>
             {(servers || []).map(s => (
@@ -155,7 +155,7 @@ function InventoryDetail({ go, params }) {
 
       {tab === "parts" && (
         <table className="table">
-          <thead><tr><th>Group</th><th>Component</th><th>HPE PN</th><th>Qty</th><th>Servers</th><th>Manufacturer</th></tr></thead>
+          <thead><tr><th>{t("inventory_detail.col_group")}</th><th>{t("inventory_detail.col_component")}</th><th>{t("inventory_detail.col_hpe_pn")}</th><th>{t("inventory_detail.col_qty")}</th><th>{t("inventory_detail.col_servers")}</th><th>{t("inventory_detail.col_manufacturer")}</th></tr></thead>
           <tbody>
             {(parts || []).map((p, i) => (
               <tr key={i}>
@@ -174,8 +174,8 @@ function InventoryDetail({ go, params }) {
       {tab === "logs" && (
         <div className="card">
           <div className="card-head">
-            <h3>Collection log</h3>
-            <a className="btn ghost sm" href={`/api/v1/inventories/${id}/logs?format=txt`} target="_blank" rel="noreferrer"><Icon.Download /> Download .log</a>
+            <h3>{t("inventory_detail.card_collection_log")}</h3>
+            <a className="btn ghost sm" href={`/api/v1/inventories/${id}/logs?format=txt`} target="_blank" rel="noreferrer"><Icon.Download /> {t("inventory_detail.download_log")}</a>
           </div>
           <pre className="logbox">
             {(logs?.lines || []).map((l, i) => (
@@ -189,14 +189,14 @@ function InventoryDetail({ go, params }) {
 
       {tab === "integrity" && (
         <div className="card">
-          <div className="card-head"><h3>Integrity</h3></div>
+          <div className="card-head"><h3>{t("inventory_detail.card_integrity")}</h3></div>
           <dl className="kv">
-            <dt>Mode</dt><dd>{inv.mode} · {inv.submode}</dd>
-            <dt>Collector version</dt><dd className="t-mono">{inv.collector_version || "—"}</dd>
-            <dt>Integrity status</dt><dd>{inv.integrity_status === "ok" ? <span className="pill ok"><span className="dot"/>verified</span> : inv.integrity_status === "script-modified" ? <span className="pill warn"><span className="dot"/>script modified · informational</span> : <span className="t-muted">—</span>}</dd>
-            <dt>Notes</dt><dd className="t-muted">{inv.integrity_notes || "—"}</dd>
-            <dt>Created by</dt><dd>{inv.created_by || "—"}</dd>
-            <dt>Duration</dt><dd className="t-num">{inv.duration_seconds ? inv.duration_seconds.toFixed(1) + "s" : "—"}</dd>
+            <dt>{t("inventory_detail.integrity_mode")}</dt><dd>{inv.mode} · {inv.submode}</dd>
+            <dt>{t("inventory_detail.integrity_collector_version")}</dt><dd className="t-mono">{inv.collector_version || "—"}</dd>
+            <dt>{t("inventory_detail.integrity_status_label")}</dt><dd>{inv.integrity_status === "ok" ? <span className="pill ok"><span className="dot"/>{t("inventories_list.integrity_verified")}</span> : inv.integrity_status === "script-modified" ? <span className="pill warn"><span className="dot"/>{t("inventory_detail.integrity_script_modified_info")}</span> : <span className="t-muted">—</span>}</dd>
+            <dt>{t("inventory_detail.integrity_notes")}</dt><dd className="t-muted">{inv.integrity_notes || "—"}</dd>
+            <dt>{t("inventory_detail.integrity_created_by")}</dt><dd>{inv.created_by || "—"}</dd>
+            <dt>{t("inventory_detail.integrity_duration")}</dt><dd className="t-num">{inv.duration_seconds ? inv.duration_seconds.toFixed(1) + "s" : "—"}</dd>
           </dl>
         </div>
       )}

@@ -7,55 +7,53 @@ function SmartHandsGen({ go }) {
   const toast = useToast();
 
   async function generate() {
-    if (!meta.name) { toast.push("Name is required", "err"); return; }
+    if (!meta.name) { toast.push(t("smart_hands.toast_name_required"), "err"); return; }
     try {
       const r = await api.smartHandsGenerate({ ...meta, csv_text: csvText || null });
       setResult(r);
-      toast.push("Archive generated", "ok");
+      toast.push(t("smart_hands.toast_archive_generated"), "ok");
     } catch (e) { toast.push(e.message, "err"); }
   }
 
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1 className="t-h1">Generate Smart Hands collector</h1>
-        <p className="t-muted">Ship a portable archive. Engineer runs it, sends back <code>results.hpr</code>.</p>
+        <h1 className="t-h1">{t("smart_hands.generate_title")}</h1>
+        <p className="t-muted">{t("smart_hands.generate_subtitle")}</p>
       </header>
 
       <section className="card">
-        <div className="card-head"><h3>Inventory details</h3></div>
+        <div className="card-head"><h3>{t("smart_hands.section_inventory_details")}</h3></div>
         <div className="grid grid-2">
-          <Field label="Inventory name *"><input className="input" value={meta.name} onChange={e => setMeta({...meta, name: e.target.value})} /></Field>
-          <Field label="Organization"><input className="input" value={meta.organization} onChange={e => setMeta({...meta, organization: e.target.value})} /></Field>
-          <Field label="Description" style={{gridColumn:"1 / -1"}}><input className="input" value={meta.description} onChange={e => setMeta({...meta, description: e.target.value})} /></Field>
+          <Field label={t("smart_hands.field_name")}><input className="input" value={meta.name} onChange={e => setMeta({...meta, name: e.target.value})} /></Field>
+          <Field label={t("smart_hands.field_organization")}><input className="input" value={meta.organization} onChange={e => setMeta({...meta, organization: e.target.value})} /></Field>
+          <Field label={t("smart_hands.field_description")} style={{gridColumn:"1 / -1"}}><input className="input" value={meta.description} onChange={e => setMeta({...meta, description: e.target.value})} /></Field>
         </div>
 
-        <Field label="Pre-filled inventory CSV (optional)" hint="The remote engineer can also fill this in themselves." style={{marginTop:12}}>
+        <Field label={t("smart_hands.field_csv_prefill")} hint={t("smart_hands.field_csv_prefill_hint")} style={{marginTop:12}}>
           <textarea className="textarea t-mono" rows={6} value={csvText} placeholder="ip,hostname,login,password" onChange={e => setCsvText(e.target.value)} />
         </Field>
 
         <div className="row" style={{marginTop:12, gap:8, justifyContent:"flex-end"}}>
-          <button className="btn ghost" onClick={() => go("addinv")}>Cancel</button>
-          <button className="btn primary" onClick={generate}><Icon.Download /> Generate archive</button>
+          <button className="btn ghost" onClick={() => go("addinv")}>{t("common.cancel")}</button>
+          <button className="btn primary" onClick={generate}><Icon.Download /> {t("smart_hands.generate_btn")}</button>
         </div>
       </section>
 
       {result && (
         <section className="card">
-          <div className="card-head"><h3>Archive ready</h3></div>
+          <div className="card-head"><h3>{t("smart_hands.section_archive_ready")}</h3></div>
           <dl className="kv">
-            <dt>Filename</dt><dd className="t-mono">{result.archive}</dd>
-            <dt>Size</dt><dd className="t-num">{(result.size_bytes/1024).toFixed(1)} KB</dd>
-            <dt>SHA-256</dt><dd className="t-mono">{result.sha256}</dd>
-            <dt>Inventory id</dt><dd className="t-mono">{result.inventory_id}</dd>
+            <dt>{t("smart_hands.label_filename")}</dt><dd className="t-mono">{result.archive}</dd>
+            <dt>{t("smart_hands.label_size")}</dt><dd className="t-num">{(result.size_bytes/1024).toFixed(1)} KB</dd>
+            <dt>{t("smart_hands.label_sha256")}</dt><dd className="t-mono">{result.sha256}</dd>
+            <dt>{t("smart_hands.label_inventory_id")}</dt><dd className="t-mono">{result.inventory_id}</dd>
           </dl>
           <div className="row" style={{gap:8, marginTop:12}}>
-            <a className="btn primary" href={result.download_url}><Icon.Download /> Download archive</a>
-            <button className="btn ghost" onClick={() => go("inventories.detail", { id: result.inventory_id, name: meta.name })}>View pending inventory <Icon.Right /></button>
+            <a className="btn primary" href={result.download_url}><Icon.Download /> {t("smart_hands.download_btn")}</a>
+            <button className="btn ghost" onClick={() => go("inventories.detail", { id: result.inventory_id, name: meta.name })}>{t("smart_hands.view_pending")} <Icon.Right /></button>
           </div>
-          <p className="t-muted" style={{marginTop:12}}>
-            Send the archive with the README to the remote engineer — it includes setup steps and only needs Python 3.10+ and HTTPS access to the iLOs.
-          </p>
+          <p className="t-muted" style={{marginTop:12}}>{t("smart_hands.send_instructions")}</p>
         </section>
       )}
     </div>
@@ -74,8 +72,8 @@ function SmartHandsProc({ go }) {
     try {
       const r = await api.smartHandsProcess(file);
       setReport(r);
-      if (r.accepted) toast.push("Results accepted", "ok");
-      else toast.push("Verification failed", "err");
+      if (r.accepted) toast.push(t("smart_hands.toast_results_accepted"), "ok");
+      else toast.push(t("smart_hands.toast_verification_failed"), "err");
     } catch (e) { toast.push(e.message, "err"); }
     finally { setBusy(false); }
   }
@@ -83,31 +81,31 @@ function SmartHandsProc({ go }) {
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1 className="t-h1">Process Smart Hands result</h1>
-        <p className="t-muted">Drop the returned <code>.hpr</code> file. We verify the signature chain and ingest.</p>
+        <h1 className="t-h1">{t("smart_hands.process_title")}</h1>
+        <p className="t-muted">{t("smart_hands.process_subtitle")}</p>
       </header>
 
       <section className="card">
-        <div className="card-head"><h3>Upload</h3></div>
+        <div className="card-head"><h3>{t("smart_hands.section_upload")}</h3></div>
         <div className="dropzone">
           <input type="file" id="hpr-file" accept=".hpr,.tar.gz,.json" onChange={e => setFile(e.target.files?.[0] || null)} />
           <label htmlFor="hpr-file">
             <Icon.Download />
             {file ? <><b>{file.name}</b> <span className="t-muted">({(file.size/1024).toFixed(1)} KB)</span></>
-                  : <span className="t-muted">Click or drop a <code>.hpr</code> file</span>}
+                  : <span className="t-muted">{t("smart_hands.dropzone_prompt")}</span>}
           </label>
         </div>
         <div className="row" style={{marginTop:12, gap:8, justifyContent:"flex-end"}}>
-          <button className="btn ghost" onClick={() => go("addinv")}>Cancel</button>
-          <button className="btn primary" onClick={process} disabled={!file || busy}>{busy ? <Spinner /> : <Icon.Check />} Process file</button>
+          <button className="btn ghost" onClick={() => go("addinv")}>{t("common.cancel")}</button>
+          <button className="btn primary" onClick={process} disabled={!file || busy}>{busy ? <Spinner /> : <Icon.Check />} {t("smart_hands.process_btn")}</button>
         </div>
       </section>
 
       {report && (
         <section className="card">
           <div className="card-head">
-            <h3>Verification</h3>
-            {report.accepted ? <span className="pill ok"><span className="dot"/>accepted</span> : <span className="pill err"><span className="dot"/>rejected</span>}
+            <h3>{t("smart_hands.section_verification")}</h3>
+            {report.accepted ? <span className="pill ok"><span className="dot"/>{t("smart_hands.status_accepted")}</span> : <span className="pill err"><span className="dot"/>{t("smart_hands.status_rejected")}</span>}
           </div>
           <ol className="verify-list">
             {report.steps.map((s, i) => (
@@ -119,7 +117,7 @@ function SmartHandsProc({ go }) {
           </ol>
           {report.accepted && (
             <div className="row" style={{marginTop:12, justifyContent:"flex-end"}}>
-              <button className="btn primary" onClick={() => go("inventories.detail", { id: report.inventory_id })}>View inventory <Icon.Right /></button>
+              <button className="btn primary" onClick={() => go("inventories.detail", { id: report.inventory_id })}>{t("smart_hands.view_inventory")} <Icon.Right /></button>
             </div>
           )}
         </section>

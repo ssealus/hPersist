@@ -3,7 +3,7 @@
 
 function ToolScan({ go }) {
   return <div className="screen">
-    <header className="screen-head"><h1 className="t-h1">Network scanner</h1><p className="t-muted">Use this without committing to a full collection — just see what's out there.</p></header>
+    <header className="screen-head"><h1 className="t-h1">{t("tool_scan.title")}</h1><p className="t-muted">{t("tool_scan.subtitle")}</p></header>
     <LocalCidr go={go} />
   </div>;
 }

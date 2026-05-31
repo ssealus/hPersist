@@ -22,7 +22,7 @@ function LocalCidr({ go }) {
       if (h.redfish || h.tcp_443) setHits(prev => [...prev, h].sort((a, b) => a.ip.localeCompare(b.ip)));
       setProgress(p => ({ ...p, done: p.done + 1 }));
     });
-    es.addEventListener("done", () => { setScanning(false); es.close(); esRef.current = null; toast.push("Scan complete", "ok"); });
+    es.addEventListener("done", () => { setScanning(false); es.close(); esRef.current = null; toast.push(t("add_local.toast_scan_complete"), "ok"); });
     es.onerror = () => { setScanning(false); es.close(); esRef.current = null; };
   }
 
@@ -32,9 +32,9 @@ function LocalCidr({ go }) {
   function selectAllRedfish() { setSelected(new Set(hits.filter(h => h.redfish).map(h => h.ip))); }
 
   async function start() {
-    if (!meta.name) { toast.push("Name is required", "err"); return; }
-    if (!pass) { toast.push("Default password is required", "err"); return; }
-    if (selected.size === 0) { toast.push("Pick at least one host", "err"); return; }
+    if (!meta.name) { toast.push(t("add_local.toast_name_required"), "err"); return; }
+    if (!pass) { toast.push(t("add_local.toast_password_required"), "err"); return; }
+    if (selected.size === 0) { toast.push(t("add_local.toast_pick_one_host"), "err"); return; }
     try {
       const r = await api.startCollection({
         name: meta.name, organization: meta.organization, description: meta.description,
@@ -42,7 +42,7 @@ function LocalCidr({ go }) {
         default_login: user, default_password: pass,
         hosts: [...selected].map(ip => ({ ip, login: user, password: pass })),
       });
-      toast.push("Collection started", "ok");
+      toast.push(t("add_local.toast_collection_started"), "ok");
       go("addinv.progress", { id: r.id, name: r.name });
     } catch (e) { toast.push(e.message, "err"); }
   }
@@ -50,19 +50,19 @@ function LocalCidr({ go }) {
   const redfishCount = hits.filter(h => h.redfish).length;
   return (
     <div className="screen">
-      <header className="screen-head"><h1 className="t-h1">CIDR scan</h1></header>
+      <header className="screen-head"><h1 className="t-h1">{t("add_local.cidr_title")}</h1></header>
 
       <section className="card">
-        <div className="card-head"><h3>1. Scan a range</h3></div>
+        <div className="card-head"><h3>{t("add_local.step_scan_range")}</h3></div>
         <div className="row" style={{gap:8, alignItems:"end"}}>
-          <Field label="CIDR" hint="e.g. 10.0.0.0/24"><input className="input t-mono" value={cidr} onChange={e => setCidr(e.target.value)} /></Field>
-          <button className="btn primary" onClick={startScan} disabled={scanning}>{scanning ? <Spinner /> : <Icon.Refresh />} {scanning ? "Scanning…" : "Start scan"}</button>
-          {scanning && <button className="btn ghost" onClick={() => esRef.current?.close()}><Icon.X /> Stop</button>}
+          <Field label={t("add_local.field_cidr")} hint={t("add_local.field_cidr_hint")}><input className="input t-mono" value={cidr} onChange={e => setCidr(e.target.value)} /></Field>
+          <button className="btn primary" onClick={startScan} disabled={scanning}>{scanning ? <Spinner /> : <Icon.Refresh />} {scanning ? t("add_local.scanning") : t("add_local.start_scan")}</button>
+          {scanning && <button className="btn ghost" onClick={() => esRef.current?.close()}><Icon.X /> {t("common.stop")}</button>}
         </div>
         {progress.total > 0 && (
           <div style={{marginTop:12}}>
             <div className="progress"><div style={{width:`${(progress.done/progress.total)*100}%`}}/></div>
-            <div className="t-muted t-small" style={{marginTop:4}}>{progress.done} / {progress.total} · {hits.length} reachable · {redfishCount} Redfish</div>
+            <div className="t-muted t-small" style={{marginTop:4}}>{t("add_local.progress_summary").replace("{done}", progress.done).replace("{total}", progress.total).replace("{reachable}", hits.length).replace("{redfish}", redfishCount)}</div>
           </div>
         )}
       </section>
@@ -70,20 +70,20 @@ function LocalCidr({ go }) {
       {hits.length > 0 && (
         <section className="card">
           <div className="card-head">
-            <h3>2. Pick targets <span className="t-muted">({selected.size} selected)</span></h3>
-            <button className="btn ghost sm" onClick={selectAllRedfish}>Select all Redfish</button>
+            <h3>{t("add_local.step_pick_targets")} <span className="t-muted">{t("add_local.selected_count").replace("{count}", selected.size)}</span></h3>
+            <button className="btn ghost sm" onClick={selectAllRedfish}>{t("add_local.select_all_redfish")}</button>
           </div>
           <table className="table compact">
-            <thead><tr><th></th><th>IP</th><th>Redfish</th><th>RTT</th><th>Server header</th><th>HPE</th></tr></thead>
+            <thead><tr><th></th><th>{t("add_local.col_ip")}</th><th>{t("add_local.col_redfish")}</th><th>{t("add_local.col_rtt")}</th><th>{t("add_local.col_server_header")}</th><th>{t("add_local.col_hpe")}</th></tr></thead>
             <tbody>
               {hits.map(h => (
                 <tr key={h.ip} className={selected.has(h.ip) ? "selected" : ""}>
                   <td><input type="checkbox" checked={selected.has(h.ip)} onChange={() => toggle(h.ip)} /></td>
                   <td className="t-mono">{h.ip}</td>
-                  <td>{h.redfish ? <span className="pill ok"><span className="dot"/>yes</span> : h.tcp_443 ? <span className="pill warn">tcp/443 only</span> : <span className="pill err">no</span>}</td>
+                  <td>{h.redfish ? <span className="pill ok"><span className="dot"/>{t("add_local.redfish_yes")}</span> : h.tcp_443 ? <span className="pill warn">{t("add_local.redfish_tcp_only")}</span> : <span className="pill err">{t("add_local.redfish_no")}</span>}</td>
                   <td className="t-num t-muted">{h.rtt_ms ? h.rtt_ms.toFixed(0) + "ms" : "—"}</td>
                   <td className="t-mono t-muted">{h.server_header || "—"}</td>
-                  <td>{h.is_hpe === true ? <span className="pill ok">HPE</span> : h.is_hpe === false ? <span className="pill outline">other</span> : <span className="t-muted">?</span>}</td>
+                  <td>{h.is_hpe === true ? <span className="pill ok">{t("add_local.is_hpe_hpe")}</span> : h.is_hpe === false ? <span className="pill outline">{t("add_local.is_hpe_other")}</span> : <span className="t-muted">?</span>}</td>
                 </tr>
               ))}
             </tbody>
@@ -92,17 +92,17 @@ function LocalCidr({ go }) {
       )}
 
       <section className="card">
-        <div className="card-head"><h3>3. Inventory details & credentials</h3></div>
+        <div className="card-head"><h3>{t("add_local.step_inventory_creds")}</h3></div>
         <div className="grid grid-2">
-          <Field label="Inventory name *"><input className="input" placeholder="Frankfurt Q2 audit" value={meta.name} onChange={e => setMeta({...meta, name: e.target.value})} /></Field>
-          <Field label="Organization"><input className="input" placeholder="Customer name" value={meta.organization} onChange={e => setMeta({...meta, organization: e.target.value})} /></Field>
-          <Field label="Description" style={{gridColumn: "1 / -1"}}><input className="input" value={meta.description} onChange={e => setMeta({...meta, description: e.target.value})} /></Field>
-          <Field label="Default iLO username"><input className="input t-mono" value={user} onChange={e => setUser(e.target.value)} /></Field>
-          <Field label="Default iLO password *"><input className="input t-mono" type="password" value={pass} onChange={e => setPass(e.target.value)} /></Field>
+          <Field label={t("add_local.field_name")}><input className="input" placeholder={t("add_local.field_name_placeholder")} value={meta.name} onChange={e => setMeta({...meta, name: e.target.value})} /></Field>
+          <Field label={t("add_local.field_organization")}><input className="input" placeholder={t("add_local.field_organization_placeholder")} value={meta.organization} onChange={e => setMeta({...meta, organization: e.target.value})} /></Field>
+          <Field label={t("add_local.field_description")} style={{gridColumn: "1 / -1"}}><input className="input" value={meta.description} onChange={e => setMeta({...meta, description: e.target.value})} /></Field>
+          <Field label={t("add_local.field_default_username")}><input className="input t-mono" value={user} onChange={e => setUser(e.target.value)} /></Field>
+          <Field label={t("add_local.field_default_password")}><input className="input t-mono" type="password" value={pass} onChange={e => setPass(e.target.value)} /></Field>
         </div>
         <div className="row" style={{marginTop:12, gap:8, justifyContent:"flex-end"}}>
-          <button className="btn ghost" onClick={() => go("addinv")}>Cancel</button>
-          <button className="btn primary" onClick={start} disabled={selected.size === 0}><Icon.Plus /> Start collection ({selected.size})</button>
+          <button className="btn ghost" onClick={() => go("addinv")}>{t("common.cancel")}</button>
+          <button className="btn primary" onClick={start} disabled={selected.size === 0}><Icon.Plus /> {t("add_local.start_collection_count").replace("{count}", selected.size)}</button>
         </div>
       </section>
     </div>
@@ -122,7 +122,7 @@ function LocalCsv({ go }) {
 
   async function loadTemplate() {
     setText("ip,hostname,login,password\n10.0.10.42,db-fra-01,Administrator,YourPassword\n10.0.10.43,,Administrator,YourPassword\n");
-    toast.push("Template loaded", "info");
+    toast.push(t("add_local.template_loaded"), "info");
   }
 
   async function onFile(e) {
@@ -132,8 +132,8 @@ function LocalCsv({ go }) {
   }
 
   async function start() {
-    if (!meta.name) { toast.push("Name is required", "err"); return; }
-    if (!report || !report.summary.ok) { toast.push("Validate the CSV first", "err"); return; }
+    if (!meta.name) { toast.push(t("add_local.toast_name_required"), "err"); return; }
+    if (!report || !report.summary.ok) { toast.push(t("add_local.toast_validate_first"), "err"); return; }
     try {
       // re-parse client-side so the password never leaves the local memory
       const parsed = parseClient(text);
@@ -142,37 +142,37 @@ function LocalCsv({ go }) {
         name: meta.name, organization: meta.organization, description: meta.description,
         mode: "csv", hosts: hostsWithCreds,
       });
-      toast.push("Collection started", "ok");
+      toast.push(t("add_local.toast_collection_started"), "ok");
       go("addinv.progress", { id: r.id, name: r.name });
     } catch (e) { toast.push(e.message, "err"); }
   }
 
   return (
     <div className="screen">
-      <header className="screen-head"><h1 className="t-h1">CSV upload</h1></header>
+      <header className="screen-head"><h1 className="t-h1">{t("add_local.csv_title")}</h1></header>
 
       <section className="card">
-        <div className="card-head"><h3>1. Inventory CSV</h3>
+        <div className="card-head"><h3>{t("add_local.step_csv_input")}</h3>
           <div className="row" style={{gap:8}}>
             <input type="file" accept=".csv,.txt" onChange={onFile} className="input-file" />
-            <button className="btn ghost sm" onClick={loadTemplate}><Icon.Doc /> Template</button>
+            <button className="btn ghost sm" onClick={loadTemplate}><Icon.Doc /> {t("add_local.template")}</button>
           </div>
         </div>
         <textarea className="textarea t-mono" rows={10} value={text} onChange={e => setText(e.target.value)} />
         <div className="row" style={{marginTop:8, justifyContent:"flex-end"}}>
-          <button className="btn ghost" onClick={validate}><Icon.Check /> Validate</button>
+          <button className="btn ghost" onClick={validate}><Icon.Check /> {t("common.validate")}</button>
         </div>
         {report && (
           <div style={{marginTop:12}}>
             <div className="row" style={{gap:8}}>
-              <span className="pill ok"><span className="dot"/>{report.summary.ok} valid</span>
-              {report.summary.warn > 0 && <span className="pill warn"><span className="dot"/>{report.summary.warn} warnings</span>}
-              {report.summary.err > 0 && <span className="pill err"><span className="dot"/>{report.summary.err} errors</span>}
+              <span className="pill ok"><span className="dot"/>{t("add_local.n_valid").replace("{count}", report.summary.ok)}</span>
+              {report.summary.warn > 0 && <span className="pill warn"><span className="dot"/>{t("add_local.n_warnings").replace("{count}", report.summary.warn)}</span>}
+              {report.summary.err > 0 && <span className="pill err"><span className="dot"/>{t("add_local.n_errors").replace("{count}", report.summary.err)}</span>}
               {report.summary.fatal.length > 0 && <span className="t-err">{report.summary.fatal.join(" · ")}</span>}
             </div>
             {report.rows.some(r => r.status !== "ok") && (
               <table className="table compact" style={{marginTop:12}}>
-                <thead><tr><th>Line</th><th>IP</th><th>Status</th><th>Message</th></tr></thead>
+                <thead><tr><th>{t("add_local.col_line")}</th><th>{t("add_local.col_ip")}</th><th>{t("add_local.col_status")}</th><th>{t("add_local.col_message")}</th></tr></thead>
                 <tbody>
                   {report.rows.filter(r => r.status !== "ok").map((r, i) => (
                     <tr key={i}>
@@ -190,15 +190,15 @@ function LocalCsv({ go }) {
       </section>
 
       <section className="card">
-        <div className="card-head"><h3>2. Inventory details</h3></div>
+        <div className="card-head"><h3>{t("add_local.step_csv_details")}</h3></div>
         <div className="grid grid-2">
-          <Field label="Inventory name *"><input className="input" value={meta.name} onChange={e => setMeta({...meta, name: e.target.value})} /></Field>
-          <Field label="Organization"><input className="input" value={meta.organization} onChange={e => setMeta({...meta, organization: e.target.value})} /></Field>
-          <Field label="Description" style={{gridColumn:"1 / -1"}}><input className="input" value={meta.description} onChange={e => setMeta({...meta, description: e.target.value})} /></Field>
+          <Field label={t("add_local.field_name")}><input className="input" value={meta.name} onChange={e => setMeta({...meta, name: e.target.value})} /></Field>
+          <Field label={t("add_local.field_organization")}><input className="input" value={meta.organization} onChange={e => setMeta({...meta, organization: e.target.value})} /></Field>
+          <Field label={t("add_local.field_description")} style={{gridColumn:"1 / -1"}}><input className="input" value={meta.description} onChange={e => setMeta({...meta, description: e.target.value})} /></Field>
         </div>
         <div className="row" style={{marginTop:12, gap:8, justifyContent:"flex-end"}}>
-          <button className="btn ghost" onClick={() => go("addinv")}>Cancel</button>
-          <button className="btn primary" onClick={start} disabled={!report || !report.summary.ok}><Icon.Plus /> Start collection</button>
+          <button className="btn ghost" onClick={() => go("addinv")}>{t("common.cancel")}</button>
+          <button className="btn primary" onClick={start} disabled={!report || !report.summary.ok}><Icon.Plus /> {t("add_local.start_collection")}</button>
         </div>
       </section>
     </div>

@@ -43,14 +43,10 @@ function Sidebar({ route, go, counts, theme, setTheme }) {
       })}
 
       <div className="sb-foot">
-        <div className="row"><span>collector</span><span className="ok">● online</span></div>
-        <div className="row"><span>db</span><span className="ok">sqlite · 12.4 MB</span></div>
-        <div className="row"><span>queue</span><span>0 / 4</span></div>
         <div style={{display:"flex", gap:6, marginTop: 8}}>
           <button className="btn ghost sm" style={{flex:1}} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            {theme === "dark" ? <Icon.Sun /> : <Icon.Moon />} {theme === "dark" ? "Light" : "Dark"}
+            {theme === "dark" ? <Icon.Sun /> : <Icon.Moon />} {theme === "dark" ? t("settings_page.theme_light") : t("settings_page.theme_dark")}
           </button>
-          <button className="btn ghost sm" title="Open docs"><Icon.Doc /></button>
         </div>
       </div>
     </aside>
@@ -72,7 +68,7 @@ function Topbar({ route, go, openCommand }) {
       <div className="tb-spacer" />
       <div className="tb-search" onClick={openCommand}>
         <Icon.Search />
-        <span>Jump to inventory, server, command…</span>
+        <span>{t("app.search_placeholder")}</span>
       </div>
       {/* <button className="tb-iconbtn" title="Logs"><Icon.Logs /></button>
       <button className="tb-iconbtn" title="Refresh"><Icon.Refresh /></button> */}

@@ -10,16 +10,16 @@ function Settings({ locale, setLocale, theme, setTheme, density, setDensity, dir
 
       <section className="card">
         <div className="card-head"><h3>{t("settings_page.appearance")}</h3></div>
-        <Field label="Theme">
+        <Field label={t("settings_page.theme")}>
           <div className="row" style={{gap:6}}>
-            <button className={"chip" + (theme === "dark" ? " active" : "")} onClick={() => setTheme("dark")}>Dark</button>
-            <button className={"chip" + (theme === "light" ? " active" : "")} onClick={() => setTheme("light")}>Light</button>
+            <button className={"chip" + (theme === "dark" ? " active" : "")} onClick={() => setTheme("dark")}>{t("settings_page.theme_dark")}</button>
+            <button className={"chip" + (theme === "light" ? " active" : "")} onClick={() => setTheme("light")}>{t("settings_page.theme_light")}</button>
           </div>
         </Field>
-        <Field label="Density">
+        <Field label={t("settings_page.density")}>
           <div className="row" style={{gap:6}}>
             {["compact","regular","comfy"].map(d => (
-              <button key={d} className={"chip" + (density === d ? " active" : "")} onClick={() => setDensity(d)}>{d}</button>
+              <button key={d} className={"chip" + (density === d ? " active" : "")} onClick={() => setDensity(d)}>{t("settings_page.density_" + d)}</button>
             ))}
           </div>
         </Field>
@@ -32,15 +32,15 @@ function Settings({ locale, setLocale, theme, setTheme, density, setDensity, dir
             <button key={l.code} className={"chip" + (locale === l.code ? " active" : "")} onClick={() => setLocale(l.code)}>{l.native}</button>
           ))}
         </div>
-        <p className="t-muted t-small" style={{marginTop:8}}>Drop new locale files into <code>app/locales/</code> and reload.</p>
+        <p className="t-muted t-small" style={{marginTop:8}}>{t("settings_page.locale_hint")}</p>
       </section>
 
       <section className="card">
         <div className="card-head"><h3>{t("nav.system")}</h3></div>
         <dl className="kv">
-          <dt>Version</dt><dd className="t-mono">{health?.version || "—"}</dd>
-          <dt>Schema</dt><dd className="t-mono">{health?.schema || "—"}</dd>
-          <dt>Status</dt><dd>{health?.status === "ok" ? <span className="pill ok"><span className="dot"/>online</span> : <span className="pill warn">unknown</span>}</dd>
+          <dt>{t("settings_page.system_version")}</dt><dd className="t-mono">{health?.version || "—"}</dd>
+          <dt>{t("settings_page.system_schema")}</dt><dd className="t-mono">{health?.schema || "—"}</dd>
+          <dt>{t("settings_page.system_status")}</dt><dd>{health?.status === "ok" ? <span className="pill ok"><span className="dot"/>{t("settings_page.status_online")}</span> : <span className="pill warn">{t("settings_page.status_unknown")}</span>}</dd>
         </dl>
       </section>
     </div>
