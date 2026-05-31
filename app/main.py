@@ -4,7 +4,9 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+import hashlib
+
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -72,6 +74,22 @@ def health() -> dict:
 def version() -> dict:
     return {"version": __version__, "collector": settings.collector_version}
 
+_REVALIDATE_SUFFIXES = (".jsx", ".js", ".css", ".html", ".json", ".svg")
+
+
+def _etag_for(path: Path) -> str:
+    st = path.stat()
+    return f'W/"{hashlib.md5(f"{path}-{st.st_size}-{int(st.st_mtime)}".encode()).hexdigest()}"'
+
+
+def _conditional_file(request: Request, path: Path, status_code: int = 200) -> Response:
+    if path.suffix.lower() not in _REVALIDATE_SUFFIXES:
+        return FileResponse(path, status_code=status_code)
+    etag = _etag_for(path)
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304, headers={"ETag": etag, "Cache-Control": "no-cache"})
+    return FileResponse(path, headers={"ETag": etag, "Cache-Control": "no-cache"}, status_code=status_code)
+
 
 if FRONTEND_DIR.exists():
     static_dir = FRONTEND_DIR / "static"
@@ -79,15 +97,15 @@ if FRONTEND_DIR.exists():
         app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
     @app.get("/")
-    def index() -> FileResponse:
-        return FileResponse(FRONTEND_DIR / "index.html")
+    def index(request: Request) -> Response:
+        return _conditional_file(request, FRONTEND_DIR / "index.html")
 
     @app.get("/{full_path:path}")
-    def spa(full_path: str) -> FileResponse:
+    def spa(request: Request, full_path: str) -> Response:
         # SPA fallback: real asset wins, otherwise serve index.html
         if full_path.startswith(("api/", "ws/", "static/")):
-            return FileResponse(FRONTEND_DIR / "index.html", status_code=404)
+            return _conditional_file(request, FRONTEND_DIR / "index.html", status_code=404)
         candidate = FRONTEND_DIR / full_path
         if candidate.exists() and candidate.is_file():
-            return FileResponse(candidate)
-        return FileResponse(FRONTEND_DIR / "index.html")
+            return _conditional_file(request, candidate)
+        return _conditional_file(request, FRONTEND_DIR / "index.html")
