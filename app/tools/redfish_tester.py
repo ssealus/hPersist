@@ -14,6 +14,23 @@ from app.redfish.client import RedfishClient, RedfishCreds, _ssl_context
 HISTORY_LIMIT = 50
 
 
+def _sanitize_redfish_path(path: str) -> str:
+    """Force `path` to be a relative endpoint so it can't override host or scheme.
+
+    httpx.AsyncClient honours `base_url` only for relative paths — pass an
+    absolute or scheme-relative URL and the base is discarded entirely.
+    Reject those (CodeQL py/full-ssrf).
+    """
+    p = (path or "").strip()
+    if not p:
+        return "/"
+    if "://" in p or p.startswith("//"):
+        raise ValueError("absolute URLs are not allowed; use a relative Redfish path like /redfish/v1/...")
+    if not p.startswith("/"):
+        p = f"/{p}"
+    return p
+
+
 async def send_request(
     *,
     host: str,
@@ -29,12 +46,23 @@ async def send_request(
     base = f"https://{host}:{port}" if port != 443 else f"https://{host}"
     started = time.perf_counter()
 
+    try:
+        safe_path = _sanitize_redfish_path(path)
+    except ValueError as exc:
+        # Same error shape as transport-level failures so the UI renders it uniformly.
+        bad_snapshot = {
+            "host": host, "port": port, "method": method.upper(), "path": path,
+            "username": username or "", "tls": tls, "request_body": None,
+        }
+        _append_history({**bad_snapshot, "status": 0, "ms": 0.0})
+        return {**bad_snapshot, "status": 0, "ms": 0.0, "error": str(exc)}
+
     # what we save in history so the UI can click-to-restore. no password — ever.
     req_snapshot = {
         "host": host,
         "port": port,
         "method": method.upper(),
-        "path": path,
+        "path": safe_path,
         "username": username or "",
         "tls": tls,
         "request_body": body if (body is not None and method.upper() != "GET") else None,
@@ -44,7 +72,7 @@ async def send_request(
         try:
             r = await c.request(
                 method.upper(),
-                path,
+                safe_path,
                 auth=(username, password) if username else None,
                 json=body,
                 headers={"Accept": "application/json"},
