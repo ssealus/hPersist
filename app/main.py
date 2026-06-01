@@ -20,6 +20,7 @@ from app.core.logging import prune_old_logs
 
 ROOT = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = ROOT / "frontend"
+_FRONTEND_RESOLVED = FRONTEND_DIR.resolve()
 
 
 @asynccontextmanager
@@ -105,7 +106,11 @@ if FRONTEND_DIR.exists():
         # SPA fallback: real asset wins, otherwise serve index.html
         if full_path.startswith(("api/", "ws/", "static/")):
             return _conditional_file(request, FRONTEND_DIR / "index.html", status_code=404)
-        candidate = FRONTEND_DIR / full_path
-        if candidate.exists() and candidate.is_file():
+        try:
+            candidate = (FRONTEND_DIR / full_path).resolve()
+            candidate.relative_to(_FRONTEND_RESOLVED)
+        except (ValueError, OSError):
+            return _conditional_file(request, FRONTEND_DIR / "index.html")
+        if candidate.is_file():
             return _conditional_file(request, candidate)
         return _conditional_file(request, FRONTEND_DIR / "index.html")
