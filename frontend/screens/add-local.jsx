@@ -55,10 +55,11 @@ function LocalCidr({ go }) {
       <section className="card">
         <div className="card-head"><h3>{t("add_local.step_scan_range")}</h3></div>
         <div className="row" style={{gap:8, alignItems:"end"}}>
-          <Field label={t("add_local.field_cidr")} hint={t("add_local.field_cidr_hint")}><input className="input t-mono" value={cidr} onChange={e => setCidr(e.target.value)} /></Field>
-          <button className="btn primary" onClick={startScan} disabled={scanning}>{scanning ? <Spinner /> : <Icon.Refresh />} {scanning ? t("add_local.scanning") : t("add_local.start_scan")}</button>
-          {scanning && <button className="btn ghost" onClick={() => esRef.current?.close()}><Icon.X /> {t("common.stop")}</button>}
+          <Field label={t("add_local.field_cidr")} style={{marginBottom: 0}}><input className="input t-mono" value={cidr} onChange={e => setCidr(e.target.value)} /></Field>
+          <button className="btn primary" style={{height: 30}} onClick={startScan} disabled={scanning}>{scanning ? <Spinner /> : <Icon.Refresh />} {scanning ? t("add_local.scanning") : t("add_local.start_scan")}</button>
+          {scanning && <button className="btn ghost" style={{height: 30}} onClick={() => esRef.current?.close()}><Icon.X /> {t("common.stop")}</button>}
         </div>
+        <div className="field-hint t-muted" style={{marginTop:6}}>{t("add_local.field_cidr_hint")}</div>
         {progress.total > 0 && (
           <div style={{marginTop:12}}>
             <div className="progress"><div style={{width:`${(progress.done/progress.total)*100}%`}}/></div>

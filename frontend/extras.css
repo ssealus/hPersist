@@ -264,6 +264,7 @@
   align-items: flex-start;
   gap: 12px;
   width: 100%;
+  min-height: 88px;
   padding: 14px 16px;
   background: var(--panel);
   border: 1px solid var(--line);
