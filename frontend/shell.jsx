@@ -11,6 +11,7 @@ function Sidebar({ route, go, counts, theme, setTheme }) {
     { section: t("nav.tools") },
     { id: "tool.scan",    label: t("tools.network_scanner"), icon: "Net" },
     { id: "tool.redfish", label: t("tools.redfish_tester"),  icon: "Term" },
+    { id: "tool.insight", label: t("tools.ai_insight"),      icon: "Sparkles" },
     { section: t("nav.system") },
     { id: "stats",    label: t("nav.stats"),     icon: "Chart" },
     { id: "settings", label: t("nav.settings"),  icon: "Cog" },
@@ -95,6 +96,7 @@ function useCrumbs(route) {
     "export.builder":    [{label:"Procurement export"}],
     "tool.scan":    [{label:t("nav.tools")}, {label:t("tools.network_scanner")}],
     "tool.redfish": [{label:t("nav.tools")}, {label:t("tools.redfish_tester")}],
+    "tool.insight": [{label:t("nav.tools")}, {label:t("tools.ai_insight")}],
     "stats":   [{label:t("nav.stats")}],
     "settings":[{label:t("nav.settings")}],
   };

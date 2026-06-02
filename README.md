@@ -185,8 +185,10 @@ Full catalogue with defaults and notes in [.env.example](.env.example).
 
 ## Tools
 
-The MVP ships **Network scanner** and
-**Redfish tester** . Deferred tools like Part lookup, Firmware compare, BOM diff, AI Insight - are in
+The MVP ships **Network scanner**, **Redfish tester** and
+**AI Insight** (OpenAI-compatible LLM analysis of selected inventories —
+configure base URL / API key / model in Settings). Deferred tools like
+Part lookup, Firmware compare, BOM diff are in
 [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Extending

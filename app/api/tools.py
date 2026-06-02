@@ -8,7 +8,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.api.schemas import RedfishTestRequest
-from app.tools import redfish_tester
+from app.tools.redfish import tester as redfish_tester
 
 router = APIRouter(prefix="/tools", tags=["tools"])
 

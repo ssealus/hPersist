@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__
-from app.api import collection, exports, i18n, inventories, network, servers
+from app.api import collection, exports, i18n, insight, inventories, network, servers
 from app.api import settings as api_settings
 from app.api import smart_hands, stats, tools, ws
 from app.config import settings
@@ -58,6 +58,7 @@ for router in (
     exports.router,
     stats.router,
     i18n.router,
+    insight.router,
     api_settings.router,
 ):
     app.include_router(router, prefix=API_PREFIX)

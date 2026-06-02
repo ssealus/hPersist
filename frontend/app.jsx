@@ -117,6 +117,7 @@ function App() {
     case "export.builder": screen = <ExportBuilder go={go} params={route.params} />; break;
     case "tool.scan": screen = <ToolScan go={go} />; break;
     case "tool.redfish": screen = <ToolRedfish go={go} />; break;
+    case "tool.insight": screen = <ToolInsight go={go} />; break;
     case "stats": screen = <Telemetry go={go} />; break;
     case "settings": screen = <Settings go={go}
                                           locale={locale} setLocale={changeLocale}
@@ -166,6 +167,7 @@ function App() {
             ["export.builder","Export"],
             ["tool.scan","Tool · Scan"],
             ["tool.redfish","Tool · Redfish"],
+            ["tool.insight","Tool · AI Insight"],
             ["stats","Telemetry"],
             ["settings","Settings"],
           ].map(([r, l]) => (

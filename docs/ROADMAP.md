@@ -56,11 +56,14 @@ fleet and flag expirations or under-licensed hosts.
 - Read iLO license info from Redfish `Managers/{id}/Oem/Hpe/License`.
 - Track expiry dates in the DB, surface upcoming expirations.
 
-### [ ] AI Insight
-Get an AI summary or complex analytics based on your invenories.
+### [x] AI Insight  *(shipped — MVP)*
+Get an AI summary or complex analytics based on your inventories.
 
-- OpenAI Compatible API
-- Modes: summmary, analytics, reports. 
+- OpenAI-compatible API (base URL + key + model configured in Settings)
+- Modes: summary, free-form analytics, structured reports
+  (procurement / firmware upgrade / deprecated hardware)
+- Payload: per-server compact rows (model, SN, generation, iLO/BIOS,
+  CPU/RAM/storage/NIC summaries) — never raw Redfish or credentials 
 
 ---
 
