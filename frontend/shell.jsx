@@ -22,7 +22,7 @@ function Sidebar({ route, go, counts, theme, setTheme }) {
         {/* <img src="logo.svg" alt="hPersist" width="24" height="24"
              style={{flex: "0 0 24px", display: "block"}} /> */}
         <div className="sb-name">h<b>Persist</b></div>
-        <div style={{marginLeft:"auto"}} className="t-micro">v0.0.1</div>
+        <div style={{marginLeft:"auto"}} className="t-micro">v0.0.2</div>
       </div>
 
       {items.map((it, i) => {
