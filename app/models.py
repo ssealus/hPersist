@@ -175,6 +175,21 @@ class UserSetting(Base):
     value: Mapped[str] = mapped_column(Text)
 
 
+class PartSurferCache(Base):
+    """TTL cache of HPE PartSurfer search results.
+
+    Keyed by the lookup string (SN/PN/model — same field as the live search).
+    `payload` holds the parsed JSON result; `fetched_at` gates freshness.
+    """
+
+    __tablename__ = "partsurfer_cache"
+
+    key: Mapped[str] = mapped_column(String(200), primary_key=True)
+    fetched_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, index=True)
+    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    hits: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class RedfishProbeHistory(Base):
     """Ad-hoc Redfish tester request log.
 

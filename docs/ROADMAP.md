@@ -17,17 +17,17 @@ When implementing one of these, the flow is:
 
 ## Deferred tools
 
-### [ ] Part lookup
-Search the fleet (and a bundled HPE catalog) for a part number, description
-or serial. Originally had `app/tools/part_lookup.py`; removed pre-MVP to
-keep the surface area small.
+### [x] PartSurfer search  *(shipped — MVP)*
+Look up HPE Spare BOM for any server in the fleet by serial / part /
+model. Deep-link from the server-detail page jumps straight into a
+pre-filled search.
 
-- Input: free-text, optional category filter.
-- Output: rows with PN, category, description, how many times seen in local
-  inventories, example servers (hostname/IP), manufacturer, source
-  (`local` vs `catalog`).
-- Open questions: source of truth for the catalog: bundle a snapshot vs
-  pull from HPE PartSurfer on demand.
+- Scrapes `partsurfer.hpe.com/Search.aspx` (no public API exists) with
+  selectolax; identifies as `hPersist/<version>` in User-Agent.
+- 7-day DB-backed TTL cache (`partsurfer_cache` table) keeps the tool
+  fast and PartSurfer happy.
+- Single search field accepts SN, PN, product number or model — same
+  UX as the live site.
 
 ### [ ] Firmware compare
 Roll up every server's installed firmware (BIOS, iLO, PSU, NIC, controllers)

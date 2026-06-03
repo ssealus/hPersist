@@ -185,11 +185,12 @@ Full catalogue with defaults and notes in [.env.example](.env.example).
 
 ## Tools
 
-The MVP ships **Network scanner**, **Redfish tester** and
+The MVP ships **Network scanner**, **Redfish tester**,
 **AI Insight** (OpenAI-compatible LLM analysis of selected inventories —
-configure base URL / API key / model in Settings). Deferred tools like
-Part lookup, Firmware compare, BOM diff are in
-[docs/ROADMAP.md](docs/ROADMAP.md).
+configure base URL / API key / model in Settings) and **PartSurfer search**
+(HPE Spare BOM lookup by SN/PN/model with a 7-day DB cache; deep-link from
+any server-detail page). Deferred tools like Firmware compare and BOM diff
+are in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Extending
 

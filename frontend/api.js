@@ -64,6 +64,7 @@
     redfishTest:        (body) => api.post("/tools/redfish-test", body),
     redfishHistory:     () => api.get("/tools/redfish-test/history"),
     redfishEndpoints:   () => api.get("/tools/redfish-test/endpoints"),
+    partsurferSearch:   (q, refresh) => api.get("/tools/partsurfer/search?q=" + encodeURIComponent(q) + (refresh ? "&refresh=true" : "")),
     fleet:              () => api.get("/stats/fleet"),
     rollup:             (days) => api.get("/stats/rollup?window_days=" + (days || 30)),
     statsExportUrl:     (days) => BASE + "/stats/export?window_days=" + (days || 30),

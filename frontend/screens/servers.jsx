@@ -52,7 +52,15 @@ function ServerDetail({ go, params }) {
           <h1 className="t-h1">{s.hostname || s.ilo_ip}</h1>
           <div className="t-muted">{s.model} · SN {s.serial_number || "—"} · {s.ilo_generation} {s.ilo_firmware}</div>
         </div>
-        <button className="btn ghost sm" onClick={() => go("inventories.detail", { id: s.inventory_id })}><Icon.Left /> {t("server_detail.back")}</button>
+        <div className="row" style={{gap:6}}>
+          {s.serial_number && (
+            <button className="btn ghost sm" onClick={() => go("tool.partsurfer", { q: s.serial_number })}
+                    title={t("server_detail.lookup_parts_tooltip")}>
+              <Icon.Cube /> {t("server_detail.lookup_parts")}
+            </button>
+          )}
+          <button className="btn ghost sm" onClick={() => go("inventories.detail", { id: s.inventory_id })}><Icon.Left /> {t("server_detail.back")}</button>
+        </div>
       </header>
 
       <section className="kpi-row">
