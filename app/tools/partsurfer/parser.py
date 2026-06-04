@@ -57,7 +57,7 @@ def parse(html: str) -> dict:
             values = cells[1:1 + len(SBOM_COLUMNS)]
             if not any(values):
                 continue
-            row = dict(zip(SBOM_COLUMNS, values))
+            row = dict(zip(SBOM_COLUMNS, values, strict=False))
             rows.append(row)
 
     # "No additional information for X found in PartSurfer."

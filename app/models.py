@@ -43,10 +43,10 @@ class Inventory(Base):
     integrity_status: Mapped[str | None] = mapped_column(String(32))
     integrity_notes: Mapped[str | None] = mapped_column(Text)
 
-    servers: Mapped[list["Server"]] = relationship(
+    servers: Mapped[list[Server]] = relationship(
         back_populates="inventory", cascade="all, delete-orphan"
     )
-    job: Mapped["CollectionJob | None"] = relationship(
+    job: Mapped[CollectionJob | None] = relationship(
         back_populates="inventory", uselist=False, cascade="all, delete-orphan"
     )
 
@@ -93,7 +93,7 @@ class Server(Base):
     raw_payload: Mapped[dict] = mapped_column(JSON, default=dict)
 
     inventory: Mapped[Inventory] = relationship(back_populates="servers")
-    components: Mapped[list["Component"]] = relationship(
+    components: Mapped[list[Component]] = relationship(
         back_populates="server", cascade="all, delete-orphan"
     )
 

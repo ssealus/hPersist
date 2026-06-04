@@ -50,4 +50,4 @@ async def partsurfer_search(
     try:
         return await partsurfer_service.search(session, q, force_refresh=refresh)
     except PartSurferError as exc:
-        raise HTTPException(status_code=502, detail=str(exc))
+        raise HTTPException(status_code=502, detail=str(exc)) from exc

@@ -11,6 +11,7 @@ firmware versions, component labels) stay as-is.
 from __future__ import annotations
 
 from collections import Counter
+
 from sqlalchemy.orm import Session
 
 from app.models import Component, Inventory, Server

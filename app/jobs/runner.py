@@ -60,7 +60,7 @@ async def run_collection_job(
             job.completed = 0
             job.failed = 0
             job.started_at = started_at
-            job.log_path = str((settings.data_dir / "logs" / f"{inventory_id}.log"))
+            job.log_path = str(settings.data_dir / "logs" / f"{inventory_id}.log")
             s.add(job)
             return True
 

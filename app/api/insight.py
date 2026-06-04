@@ -33,9 +33,9 @@ async def test(session: Session = Depends(get_session)) -> dict:
     try:
         return await service.test_connection(session)
     except LLMConfigError as exc:
-        raise HTTPException(400, str(exc))
+        raise HTTPException(400, str(exc)) from exc
     except LLMHTTPError as exc:
-        raise HTTPException(502, str(exc))
+        raise HTTPException(502, str(exc)) from exc
 
 
 @router.post("/run")
@@ -56,11 +56,11 @@ async def run(body: InsightRunBody, session: Session = Depends(get_session)) -> 
             template=body.template,
         )
     except LLMConfigError as exc:
-        raise HTTPException(400, str(exc))
+        raise HTTPException(400, str(exc)) from exc
     except LLMHTTPError as exc:
-        raise HTTPException(502, str(exc))
+        raise HTTPException(502, str(exc)) from exc
     except ValueError as exc:
-        raise HTTPException(400, str(exc))
+        raise HTTPException(400, str(exc)) from exc
 
 
 def _validate(body: InsightRunBody) -> None:

@@ -17,7 +17,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import __version__
-from app.models import Component, Inventory, Server, TelemetryEvent
+from app.models import Inventory, Server, TelemetryEvent
 
 
 def rollup(session: Session, *, window_days: int = 30) -> dict[str, Any]:

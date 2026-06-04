@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     schema_version: str = "hpersist/v1"
     collector_version: str = "0.4.2"
 
-    def resolve(self) -> "Settings":
+    def resolve(self) -> Settings:
         self.data_dir = self.data_dir.expanduser()
         self.data_dir.mkdir(parents=True, exist_ok=True)
         (self.data_dir / "logs").mkdir(exist_ok=True)

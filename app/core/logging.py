@@ -9,16 +9,16 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Iterable, Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, Iterator
 
 from app.config import settings
 from app.db import session_scope
 from app.models import LogEntry
 
 _LOCK = threading.Lock()
-_LOGGERS: dict[str, "InventoryLogger"] = {}
+_LOGGERS: dict[str, InventoryLogger] = {}
 
 
 class InventoryLogger:
@@ -51,6 +51,7 @@ class InventoryLogger:
         try:
             # fresh connection — caller probably holds an open session_scope
             from sqlalchemy import insert
+
             from app.db import engine
             with engine.begin() as conn:
                 conn.execute(

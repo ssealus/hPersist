@@ -6,13 +6,12 @@ turn the rows into bytes.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from sqlalchemy.orm import Session
 
 from app.models import Inventory
-
 
 ALL_GROUPS = ["System", "CPU", "DIMM", "Drive", "Controller", "NIC", "Port", "PCIe", "PSU"]
 
@@ -26,7 +25,7 @@ class ExportOptions:
     inventory_ids: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ExportOptions":
+    def from_dict(cls, d: dict) -> ExportOptions:
         return cls(
             layout=d.get("layout") or "flat",
             groups=d.get("groups") or list(ALL_GROUPS),
@@ -96,10 +95,13 @@ def _bom_rows(flat: list[dict]) -> Iterable[list]:
 
 def _by_server_cols(options: ExportOptions) -> list[str]:
     cols = ["Server"]
-    if "sn" in options.include_columns: cols.append("SN")
+    if "sn" in options.include_columns:
+        cols.append("SN")
     cols += ["Model", "Group", "Component"]
-    if "pn" in options.include_columns: cols.append("Part #")
-    if "qty" in options.include_columns: cols.append("Qty")
+    if "pn" in options.include_columns:
+        cols.append("Part #")
+    if "qty" in options.include_columns:
+        cols.append("Qty")
     cols += ["Firmware", "Location"]
     return cols
 
@@ -108,10 +110,13 @@ def _by_server_rows(flat: list[dict], options: ExportOptions) -> Iterable[list]:
     flat = sorted(flat, key=lambda r: (r["server"], r["group"]))
     for r in flat:
         row = [r["server"]]
-        if "sn" in options.include_columns: row.append(r["sn"])
+        if "sn" in options.include_columns:
+            row.append(r["sn"])
         row += [r["model"], r["group"], r["part"]]
-        if "pn" in options.include_columns: row.append(r["pn"])
-        if "qty" in options.include_columns: row.append(r["qty"])
+        if "pn" in options.include_columns:
+            row.append(r["pn"])
+        if "qty" in options.include_columns:
+            row.append(r["qty"])
         row += [r["firmware"], r["location"]]
         yield row
 

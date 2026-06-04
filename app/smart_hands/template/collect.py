@@ -17,11 +17,9 @@ import argparse
 import csv
 import dataclasses
 import json
-import os
 import sys
-import tarfile
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # Windows consoles default to cp1252 and choke on the banner glyphs below.
@@ -35,8 +33,6 @@ if hasattr(sys.stdout, "reconfigure"):
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from hpersist_collector.client import RedfishClient, RedfishCreds  # noqa: E402
-from hpersist_collector.walker import collect_host  # noqa: E402
 from hpersist_collector.integrity import (  # noqa: E402
     build_chain,
     sha256_file,
@@ -93,7 +89,7 @@ def main() -> int:
 
     print(f"\nCollecting {len(hosts)} host(s), concurrency={args.concurrency}…\n")
 
-    started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
     started = time.perf_counter()
     records = run_collection(hosts, concurrency=args.concurrency, timeout=args.timeout, tls=args.tls)
     elapsed = round(time.perf_counter() - started, 3)

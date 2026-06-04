@@ -8,8 +8,7 @@ from sqlalchemy import desc, select
 
 from app.db import session_scope
 from app.models import RedfishProbeHistory
-from app.redfish.client import RedfishClient, RedfishCreds, _ssl_context
-
+from app.redfish.client import _ssl_context
 
 HISTORY_LIMIT = 50
 

@@ -9,12 +9,11 @@ from __future__ import annotations
 
 import hashlib
 import io
-import json
 import re
 import secrets
 import tarfile
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from app import __version__ as APP_VERSION
@@ -52,7 +51,7 @@ def generate_archive(
     seed = secrets.token_bytes(32).hex()
     out_dir = settings.data_dir / "archives"
     out_dir.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    ts = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     slug = _slugify(inventory_name)
     archive_name = f"hpersist-collector-{slug}-{ts}.tar.gz"
     archive_path = out_dir / archive_name
@@ -69,7 +68,7 @@ def generate_archive(
         "description": description,
         "created_by": created_by,
         "inventory_id": inventory_id,
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "generator_version": f"hPersist {APP_VERSION}",
         "integrity_seed": seed,
         "expected_script_sha256": expected_script_sha,
@@ -87,7 +86,7 @@ def generate_archive(
     def _add_bytes(tf: tarfile.TarFile, arcname: str, data: bytes) -> None:
         info = tarfile.TarInfo(name=arcname)
         info.size = len(data)
-        info.mtime = int(datetime.now(timezone.utc).timestamp())
+        info.mtime = int(datetime.now(UTC).timestamp())
         info.mode = 0o644
         tf.addfile(info, io.BytesIO(data))
         file_list.append(arcname)

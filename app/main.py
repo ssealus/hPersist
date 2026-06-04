@@ -1,10 +1,9 @@
 """FastAPI application entrypoint."""
 from __future__ import annotations
 
+import hashlib
 from contextlib import asynccontextmanager
 from pathlib import Path
-
-import hashlib
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,9 +11,20 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__
-from app.api import collection, exports, i18n, insight, inventories, network, servers
+from app.api import (
+    collection,
+    exports,
+    i18n,
+    insight,
+    inventories,
+    network,
+    servers,
+    smart_hands,
+    stats,
+    tools,
+    ws,
+)
 from app.api import settings as api_settings
-from app.api import smart_hands, stats, tools, ws
 from app.config import settings
 from app.core.logging import prune_old_logs
 

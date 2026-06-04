@@ -5,10 +5,10 @@ import json
 
 from sqlalchemy.orm import Session
 
+from app.models import UserSetting
 from app.tools.insight import client as llm_client
 from app.tools.insight.payload import CONTEXT_LEVELS, build_payload
 from app.tools.insight.prompts import build_messages
-from app.models import UserSetting
 
 
 def _load_llm_settings(session: Session) -> tuple[str, str, str, bool, str]:

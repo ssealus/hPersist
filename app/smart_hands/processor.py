@@ -9,7 +9,6 @@ sites legitimately patch `collect.py` (proxies, custom auth).
 from __future__ import annotations
 
 import dataclasses
-import io
 import json
 import tarfile
 from dataclasses import dataclass, field
