@@ -1,7 +1,6 @@
 """Prompt templates for the three Insight modes."""
 from __future__ import annotations
 
-
 SYSTEM = (
     "You are a senior HPE server fleet analyst. You will receive a JSON payload "
     "describing one or more inventories collected from iLO/Redfish: per-server "
@@ -86,7 +85,7 @@ def build_messages(
     if mode == "summary":
         user = SUMMARY_USER.format(payload=payload_json)
     elif mode == "analytics":
-        if not question:
+        if not (question or "").strip():
             raise ValueError("analytics mode requires a question")
         user = ANALYTICS_USER.format(question=question.strip(), payload=payload_json)
     elif mode == "reports":
