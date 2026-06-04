@@ -140,7 +140,7 @@ HPERSIST_LOG__RETENTION_DAYS=90
 HPERSIST_CORS__ALLOW_ORIGINS=["https://hpersist.example.com"]
 ```
 
-See [`.env.example`](../.env.example) for the full catalogue with defaults.
+See [`.env.example`](https://github.com/ssealus/hPersist/blob/main/.env.example) for the full catalogue with defaults.
 
 ## Integrity model — state machine
 

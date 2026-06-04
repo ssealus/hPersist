@@ -27,6 +27,9 @@ dev = [
     "pytest-asyncio>=0.23",
     "ruff>=0.5",
 ]
+docs = [
+    "mkdocs-material>=9.5",
+]
 
 [project.scripts]
 hpersist = "app.__main__:main"

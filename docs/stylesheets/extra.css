@@ -1,0 +1,129 @@
+/* hPersist site theme — match the app's console aesthetic.
+   Mint-green accent on a slate base; sharp corners; mono-leaning UI. */
+
+:root {
+  --md-primary-fg-color:        #00ff88;
+  --md-primary-fg-color--light: #4dffaa;
+  --md-primary-fg-color--dark:  #00cc6e;
+  --md-accent-fg-color:         #00ff88;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color:        #0d1117;
+  --md-default-fg-color:        #e8e1d3;
+  --md-default-fg-color--light: #b8b3a8;
+  --md-code-bg-color:           #161b22;
+  --md-primary-fg-color:        #00ff88;
+  --md-accent-fg-color:         #00ff88;
+  --md-typeset-a-color:         #00ff88;
+}
+
+[data-md-color-scheme="slate"] .md-header {
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1f2933;
+}
+
+[data-md-color-scheme="slate"] .md-tabs {
+  background: #0d1117;
+}
+
+/* Tighter corners — matches the app's small border-radius. */
+.md-typeset code,
+.md-typeset pre,
+.md-typeset .admonition,
+.md-button {
+  border-radius: 6px;
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 { font-weight: 600; letter-spacing: -0.01em; }
+
+/* Make the landing hero pop. */
+.hpersist-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 0 24px;
+  gap: 12px;
+}
+.hpersist-hero h1 {
+  font-size: 2.6em;
+  margin: 0;
+  background: linear-gradient(120deg, #00ff88 20%, #4dffaa 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hpersist-hero p.lead {
+  font-size: 1.1em;
+  max-width: 640px;
+  color: var(--md-default-fg-color--light);
+}
+.hpersist-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 12px 0 4px;
+}
+.hpersist-badges img { height: 22px; }
+
+.hpersist-cta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.md-button.md-button--primary {
+  background: var(--md-primary-fg-color);
+  color: #0d1117;
+  border-color: transparent;
+  font-weight: 600;
+}
+.md-button.md-button--primary:hover { background: var(--md-primary-fg-color--light); }
+
+/* Screenshot gallery — even grid that wraps. */
+.hpersist-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.hpersist-gallery img {
+  width: 100%;
+  border: 1px solid #1f2933;
+  border-radius: 6px;
+  display: block;
+}
+.hpersist-gallery figcaption {
+  text-align: center;
+  font-size: 0.85em;
+  color: var(--md-default-fg-color--light);
+  padding-top: 6px;
+}
+
+/* Feature grid on landing. */
+.hpersist-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.hpersist-feature {
+  border: 1px solid #1f2933;
+  border-radius: 6px;
+  padding: 14px;
+}
+.hpersist-feature h3 {
+  margin: 0 0 4px;
+  font-size: 1.05em;
+  color: var(--md-primary-fg-color);
+}
+.hpersist-feature p {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--md-default-fg-color--light);
+}
