@@ -24,17 +24,27 @@ def rollup(session: Session, *, window_days: int = 30) -> dict[str, Any]:
     cutoff = datetime.utcnow() - timedelta(days=window_days)
 
     runs = session.scalars(select(Inventory).where(Inventory.created_at >= cutoff)).all()
-    servers_touched = sum(len(i.servers) for i in runs)
-    timings = [int((s.duration_seconds or 0) * 1000) for i in runs for s in i.servers if s.duration_seconds]
+    servers = [s for i in runs for s in i.servers]
+    servers_touched = len(servers)
+
+    timings = [int((s.duration_seconds or 0) * 1000) for s in servers if s.duration_seconds]
     timings.sort()
     percentiles = _percentiles(timings, [10, 50, 90, 99])
 
     modes = Counter(f"{i.mode}.{i.submode}" for i in runs)
-    errors = Counter(_classify_error(s.collection_error) for i in runs for s in i.servers if s.collection_error)
-    ilo_mix = Counter(s.ilo_generation or "unknown" for i in runs for s in i.servers if s.ilo_generation)
-    models = Counter(s.model or "unknown" for i in runs for s in i.servers if s.model)
+    errors = Counter(_classify_error(s.collection_error) for s in servers if s.collection_error)
+    ilo_mix = Counter(s.ilo_generation or "unknown" for s in servers if s.ilo_generation)
+    models = Counter(s.model or "unknown" for s in servers if s.model)
 
-    series = _daily_series(runs, window_days)
+    # Fleet capacity totals + per-server shape buckets — same source the
+    # anonymized export uses so the on-screen numbers match the exported file.
+    shape = _hardware_shape(servers)
+    drive_media = _component_stats(servers)["drive_media"]
+
+    total_memory_gb = sum(s.total_memory_gb or 0 for s in servers)
+    total_storage_gb = sum(s.total_storage_gb or 0 for s in servers)
+    succeeded = sum(1 for s in servers if (s.collection_status or "").lower() in {"ok", "success"})
+    failed = sum(1 for s in servers if (s.collection_status or "").lower() in {"failed", "error"})
 
     return {
         "version": __version__,
@@ -47,8 +57,24 @@ def rollup(session: Session, *, window_days: int = 30) -> dict[str, Any]:
         "errors": dict(errors),
         "ilo_mix": dict(ilo_mix),
         "model_mix": dict(models),
-        "daily_runs": series,
+        "daily_runs": _daily_series(runs, window_days),
+        # Fleet shape — drives the new Telemetry cards.
+        "generation_mix": shape["generation_mix"],
+        "memory_per_server": shape["memory_per_server"],
+        "storage_per_server": shape["storage_per_server"],
+        "drive_media": drive_media,
+        "fleet_capacity": {
+            "total_memory_gb": round(total_memory_gb, 1),
+            "total_storage_gb": round(total_storage_gb, 1),
+        },
+        "host_outcomes": {
+            "succeeded": succeeded,
+            "failed": failed,
+            "success_rate": round(succeeded / (succeeded + failed), 3) if (succeeded + failed) else 0.0,
+        },
     }
+
+
 
 
 def storage_footprint(session: Session) -> dict[str, Any]:

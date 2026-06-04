@@ -58,6 +58,26 @@ function Sparkline({ points, h = 28 }) {
   );
 }
 
+// DailyBars — vertical bar chart for daily-counts series. Replaces Sparkline
+// for "runs per day" data where lines connecting zeros look misleading.
+function DailyBars({ points, h = 64, color = "var(--accent)" }) {
+  const max = Math.max(1, ...points);
+  return (
+    <div className="daily-bars" style={{ height: h }}>
+      {points.map((v, i) => (
+        <div key={i} className="daily-bar-wrap" title={`day -${points.length - 1 - i}: ${v}`}>
+          <div className="daily-bar"
+               style={{
+                 height: v > 0 ? `${(v / max) * 100}%` : "2px",
+                 background: v > 0 ? color : "var(--line)",
+                 opacity: v > 0 ? 1 : 0.6,
+               }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function StatusPill({ status }) {
   const map = {
     "complete":          { cls: "ok",      label: t("status.complete") },
