@@ -117,7 +117,7 @@ function App() {
     case "export.builder": screen = <ExportBuilder go={go} params={route.params} />; break;
     case "tool.scan": screen = <ToolScan go={go} />; break;
     case "tool.redfish": screen = <ToolRedfish go={go} />; break;
-    case "tool.insight": screen = <ToolInsight go={go} />; break;
+    case "tool.insight": screen = <ToolInsight go={go} params={route.params} />; break;
     case "tool.partsurfer": screen = <ToolPartSurfer go={go} params={route.params} />; break;
     case "stats": screen = <Telemetry go={go} />; break;
     case "settings": screen = <Settings go={go}

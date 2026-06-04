@@ -63,14 +63,54 @@ function InventoriesList({ go }) {
 function InventoryDetail({ go, params }) {
   const id = params.id;
   const [tab, setTab] = React.useState("overview");
+  const [serversHealthFilter, setServersHealthFilter] = React.useState(null);
+  const [partsLookupOpen, setPartsLookupOpen] = React.useState(false);
   const [{ loading, data, error }, reload] = usePoll(() => api.inventory(id), [id]);
   const [{ data: servers }] = usePoll(() => api.inventoryServers(id), [id]);
   const [{ data: parts }] = usePoll(() => api.inventoryParts(id), [id]);
   const [{ data: logs }] = usePoll(() => api.inventoryLogs(id), [id]);
 
+  // ─ hooks MUST run before any early-return; placing them after `if (loading)
+  //   return` triggers React's "rendered more hooks than during the previous
+  //   render" check and blanks the screen ─
+  const healthBuckets = React.useMemo(() => {
+    const b = { ok: 0, warn: 0, err: 0, unknown: 0 };
+    for (const s of servers || []) {
+      const h = (s.health || "").toLowerCase();
+      if (h === "ok" || h === "good") b.ok++;
+      else if (h === "warning" || h === "warn") b.warn++;
+      else if (h === "critical" || h === "err" || h === "fail") b.err++;
+      else b.unknown++;
+    }
+    return b;
+  }, [servers]);
+
+  // HPE Spare PNs look like `865408-B21`, `P52562-B21`, `190885-001`,
+  // `R2E09A` — short alphanumeric. DIMM vendor PNs (Hynix `HMA82GR7DJR8N-XN`,
+  // Samsung `M321R4GA3EB0-CWMXJ`) are NOT in PartSurfer's index, so showing
+  // them in a "look up in PartSurfer" widget is misleading.
+  function looksLikeHpePn(pn) {
+    if (!pn) return false;
+    // Optional letter prefix + 4-7 digits + dash + 2-4 alphanumeric (most HPE SKUs).
+    if (/^[A-Z]?\d{4,7}-[A-Z0-9]{2,4}$/.test(pn)) return true;
+    // Short uppercase model code (e.g. R2E09A).
+    if (/^[A-Z]\d[A-Z]\d{2}[A-Z]$/.test(pn)) return true;
+    return false;
+  }
+
+  const topParts = React.useMemo(() =>
+    (parts || []).filter(p => looksLikeHpePn(p.part_number)).slice(0, 6),
+    [parts],
+  );
+
   if (loading) return <div className="screen"><Spinner /></div>;
   if (error) return <div className="screen"><div className="err-panel">{error}</div></div>;
   const inv = data;
+
+  function jumpToServersByHealth(bucket) {
+    setServersHealthFilter(bucket);
+    setTab("servers");
+  }
 
   return (
     <div className="screen">
@@ -79,8 +119,33 @@ function InventoryDetail({ go, params }) {
           <h1 className="t-h1">{inv.name}</h1>
           <div className="t-muted">{inv.organization || "—"} · {inv.description || t("inventory_detail.no_description")}</div>
         </div>
-        <div className="row" style={{gap:8}}>
+        <div className="row" style={{gap:8, flexWrap:"wrap"}}>
           <StatusPill status={inv.status} />
+          <button className="btn ghost sm" onClick={() => go("tool.insight", { inventory_ids: [inv.id], autorun: true })}
+                  title={t("inventory_detail.ai_summary_tooltip")}>
+            <Icon.Sparkles /> {t("inventory_detail.ai_summary")}
+          </button>
+          <div style={{position:"relative"}}>
+            <button className="btn ghost sm" onClick={() => setPartsLookupOpen(o => !o)}>
+              <Icon.Cube /> {t("inventory_detail.spare_parts")}
+            </button>
+            {partsLookupOpen && (
+              <div className="parts-popover" onMouseLeave={() => setPartsLookupOpen(false)}>
+                <div className="parts-popover-hint t-muted t-small">{t("inventory_detail.top_parts_hint")}</div>
+                {topParts.length === 0 ? (
+                  <div className="parts-popover-empty">{t("inventory_detail.top_parts_no_hpe")}</div>
+                ) : topParts.map(p => (
+                  <a key={p.part_number} className="parts-popover-item"
+                     title={p.label}
+                     onClick={() => { setPartsLookupOpen(false); go("tool.partsurfer", { q: p.part_number }); }}>
+                    <span className="pn">{p.part_number}</span>
+                    <span className="desc">{p.label}</span>
+                    <span className="qty">×{p.quantity}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
           <button className="btn ghost sm" onClick={() => go("export.builder", { inventory_ids: [inv.id] })}><Icon.Download /> {t("inventory_detail.export")}</button>
           <button className="btn ghost sm" onClick={reload}><Icon.Refresh /> {t("common.refresh")}</button>
         </div>
@@ -108,49 +173,130 @@ function InventoryDetail({ go, params }) {
       </nav>
 
       {tab === "overview" && (
-        <section className="grid grid-2">
-          <div className="card">
-            <div className="card-head"><h3>{t("inventory_detail.card_health")}</h3></div>
-            <Donut segments={[
-              { value: inv.health.ok,      color: "var(--accent)" },
-              { value: inv.health.warn,    color: "var(--warn)" },
-              { value: inv.health.err,     color: "var(--err)" },
-              { value: inv.health.unknown, color: "var(--ink-3)" },
-            ]} />
-            <HBar items={[
-              { label: t("inventory_detail.health_ok"), value: inv.health.ok, color: "var(--accent)" },
-              { label: t("inventory_detail.health_warn"), value: inv.health.warn, color: "var(--warn)" },
-              { label: t("inventory_detail.health_err"), value: inv.health.err, color: "var(--err)" },
-              { label: t("inventory_detail.health_unknown"), value: inv.health.unknown, color: "var(--ink-3)" },
-            ]} />
-          </div>
-          <div className="card">
-            <div className="card-head"><h3>{t("inventory_detail.card_models")}</h3></div>
-            <HBar items={Object.entries(inv.model_distribution).slice(0,8).map(([k, v]) => ({ label: k, value: v }))} />
-          </div>
-        </section>
+        <>
+          <section className="grid grid-2">
+            <div className="card">
+              <div className="card-head">
+                <h3>{t("inventory_detail.card_health")}</h3>
+                <span className="t-muted t-small">{t("inventory_detail.click_to_filter")}</span>
+              </div>
+              <Donut segments={[
+                { value: inv.health.ok,      color: "var(--accent)" },
+                { value: inv.health.warn,    color: "var(--warn)" },
+                { value: inv.health.err,     color: "var(--err)" },
+                { value: inv.health.unknown, color: "var(--ink-3)" },
+              ]} />
+              <div className="health-bars">
+                {[
+                  { key: "ok",      label: t("inventory_detail.health_ok"),      value: inv.health.ok,      color: "var(--accent)" },
+                  { key: "warn",    label: t("inventory_detail.health_warn"),    value: inv.health.warn,    color: "var(--warn)" },
+                  { key: "err",     label: t("inventory_detail.health_err"),     value: inv.health.err,     color: "var(--err)" },
+                  { key: "unknown", label: t("inventory_detail.health_unknown"), value: inv.health.unknown, color: "var(--ink-3)" },
+                ].map(b => (
+                  <button key={b.key} className="health-bar-row"
+                          onClick={() => b.value > 0 && jumpToServersByHealth(b.key)}
+                          disabled={b.value === 0}>
+                    <span className="health-bar-label">{b.label}</span>
+                    <span className="health-bar-track"><span className="health-bar-fill"
+                      style={{width: `${inv.totals.servers ? (b.value / inv.totals.servers) * 100 : 0}%`, background: b.color}} /></span>
+                    <span className="t-num t-muted">{b.value}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-head"><h3>{t("inventory_detail.card_models")}</h3></div>
+              <HBar items={Object.entries(inv.model_distribution).slice(0,8).map(([k, v]) => ({ label: k, value: v }))} />
+            </div>
+          </section>
+
+          <section className="grid grid-2">
+            <div className="card">
+              <div className="card-head"><h3>{t("inventory_detail.card_ilo_firmware")}</h3></div>
+              <HBar items={Object.entries(inv.ilo_firmware_distribution || {}).slice(0, 8).map(([k, v]) => ({ label: k, value: v }))} />
+            </div>
+            <div className="card">
+              <div className="card-head"><h3>{t("inventory_detail.card_generation")}</h3></div>
+              <HBar items={Object.entries(inv.generation_distribution || {}).slice(0, 8).map(([k, v]) => ({ label: k, value: v }))} />
+            </div>
+          </section>
+
+          <section className="grid grid-2">
+            <div className="card">
+              <div className="card-head"><h3>{t("inventory_detail.card_bios")}</h3></div>
+              <HBar items={Object.entries(inv.bios_distribution || {}).slice(0, 8).map(([k, v]) => ({ label: k, value: v }))} />
+            </div>
+            <div className="card">
+              <div className="card-head">
+                <h3>{t("inventory_detail.card_top_parts")}</h3>
+                <span className="t-muted t-small">{t("inventory_detail.top_parts_click_hint")}</span>
+              </div>
+              {topParts.length === 0 ? (
+                <Empty msg={t("inventory_detail.top_parts_no_hpe")} />
+              ) : (
+                <table className="table compact">
+                  <tbody>
+                    {topParts.map(p => (
+                      <tr key={p.part_number} className="row-clickable"
+                          onClick={() => go("tool.partsurfer", { q: p.part_number })}>
+                        <td className="t-mono">{p.part_number}</td>
+                        <td className="t-muted" style={{whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", maxWidth:280}}>{p.label}</td>
+                        <td className="t-num">×{p.quantity}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </section>
+        </>
       )}
 
       {tab === "servers" && (
-        <table className="table">
-          <thead><tr>
-            <th>{t("inventory_detail.col_hostname")}</th><th>{t("inventory_detail.col_ilo_ip")}</th><th>{t("inventory_detail.col_model")}</th><th>{t("inventory_detail.col_ilo")}</th><th>{t("inventory_detail.col_bios")}</th><th>{t("inventory_detail.col_cores_gb_tb")}</th><th>{t("inventory_detail.col_status_health")}</th><th>{t("inventory_detail.col_status")}</th>
-          </tr></thead>
-          <tbody>
-            {(servers || []).map(s => (
-              <tr key={s.id} onClick={() => go("server.detail", { id: s.id, name: s.hostname || s.ilo_ip })} style={{cursor:"pointer"}}>
-                <td><b>{s.hostname || "—"}</b></td>
-                <td className="t-mono">{s.ilo_ip || "—"}</td>
-                <td>{s.model || "—"}</td>
-                <td className="t-mono">{s.ilo_generation || "?"} · {s.ilo_firmware || "?"}</td>
-                <td className="t-mono">{s.bios_version || "—"}</td>
-                <td className="t-num">— · {s.total_memory_gb || "—"} · {s.total_storage_gb ? (s.total_storage_gb/1000).toFixed(1) : "—"}</td>
-                <td><StatusPill status={s.health || "ok"} /></td>
-                <td><StatusPill status={s.collection_status === "ok" ? "complete" : "failed"} /></td>
-              </tr>
+        <>
+          <div className="row" style={{gap:6, marginBottom:8, flexWrap:"wrap"}}>
+            {[
+              { key: null,      label: t("inventory_detail.filter_all"),     count: servers?.length || 0 },
+              { key: "ok",      label: t("inventory_detail.health_ok"),      count: healthBuckets.ok },
+              { key: "warn",    label: t("inventory_detail.health_warn"),    count: healthBuckets.warn },
+              { key: "err",     label: t("inventory_detail.health_err"),     count: healthBuckets.err },
+              { key: "unknown", label: t("inventory_detail.health_unknown"), count: healthBuckets.unknown },
+            ].map(chip => (
+              <button key={chip.key || "all"}
+                      className={"chip" + (serversHealthFilter === chip.key ? " active" : "")}
+                      onClick={() => setServersHealthFilter(chip.key)}>
+                {chip.label} <span className="t-num t-muted">{chip.count}</span>
+              </button>
             ))}
-          </tbody>
-        </table>
+          </div>
+          <table className="table">
+            <thead><tr>
+              <th>{t("inventory_detail.col_hostname")}</th><th>{t("inventory_detail.col_ilo_ip")}</th><th>{t("inventory_detail.col_model")}</th><th>{t("inventory_detail.col_ilo")}</th><th>{t("inventory_detail.col_bios")}</th><th>{t("inventory_detail.col_cores_gb_tb")}</th><th>{t("inventory_detail.col_status_health")}</th><th>{t("inventory_detail.col_status")}</th>
+            </tr></thead>
+            <tbody>
+              {(servers || []).filter(s => {
+                if (serversHealthFilter === null) return true;
+                const h = (s.health || "").toLowerCase();
+                if (serversHealthFilter === "ok") return h === "ok" || h === "good";
+                if (serversHealthFilter === "warn") return h === "warning" || h === "warn";
+                if (serversHealthFilter === "err") return h === "critical" || h === "err" || h === "fail";
+                if (serversHealthFilter === "unknown") return !s.health;
+                return true;
+              }).map(s => (
+                <tr key={s.id} onClick={() => go("server.detail", { id: s.id, name: s.hostname || s.ilo_ip })} style={{cursor:"pointer"}}>
+                  <td><b>{s.hostname || "—"}</b></td>
+                  <td className="t-mono">{s.ilo_ip || "—"}</td>
+                  <td>{s.model || "—"}</td>
+                  <td className="t-mono">{s.ilo_generation || "?"} · {s.ilo_firmware || "?"}</td>
+                  <td className="t-mono">{s.bios_version || "—"}</td>
+                  <td className="t-num">— · {s.total_memory_gb || "—"} · {s.total_storage_gb ? (s.total_storage_gb/1000).toFixed(1) : "—"}</td>
+                  <td><StatusPill status={s.health || "ok"} /></td>
+                  <td><StatusPill status={s.collection_status === "ok" ? "complete" : "failed"} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
 
       {tab === "parts" && (

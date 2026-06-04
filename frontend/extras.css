@@ -260,6 +260,70 @@
   margin-left: 10px;
 }
 
+/* ── Inventory Detail: clickable health bars + parts popover ─ */
+.health-bars { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.health-bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 32px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 4px 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.health-bar-row:hover:not(:disabled) {
+  background: var(--panel-2, color-mix(in oklab, var(--accent) 6%, transparent));
+  border-color: var(--line-2, var(--line));
+}
+.health-bar-row:disabled { opacity: 0.45; cursor: default; }
+.health-bar-label { font-size: 12px; color: var(--ink-2); }
+.health-bar-track { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.health-bar-fill { display: block; height: 100%; transition: width 0.18s; }
+
+.parts-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 420px;
+  max-height: 360px;
+  overflow-y: auto;
+  z-index: 30;
+  background: var(--panel);
+  border: 1px solid var(--line-2, var(--line));
+  border-radius: var(--radius);
+  padding: 10px 8px 8px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.parts-popover-hint { padding: 0 8px 8px; }
+.parts-popover-empty { padding: 16px 8px; text-align: center; color: var(--ink-3); font-size: 12px; }
+.parts-popover-item {
+  display: grid;
+  grid-template-columns: 110px 1fr 38px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.parts-popover-item:hover { background: var(--panel-2, color-mix(in oklab, var(--accent) 8%, transparent)); }
+.parts-popover-item .pn { font-family: var(--font-mono); }
+.parts-popover-item .desc { color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; }
+.parts-popover-item .qty { color: var(--ink-3); font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+
 /* ── markdown (AI Insight answer) ───────────────────────── */
 .markdown { color: var(--ink); line-height: 1.55; }
 .markdown h1, .markdown h2, .markdown h3, .markdown h4 { margin: 18px 0 8px; font-weight: 600; }

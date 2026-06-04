@@ -1,8 +1,10 @@
 // screens/tool-insight.jsx — AI Insight: pick inventories + mode, send to LLM, render markdown answer.
 
-function ToolInsight() {
+function ToolInsight({ params }) {
   const [inventories, setInventories] = React.useState([]);
-  const [selected, setSelected] = React.useState(new Set());
+  // Pre-select inventory IDs the caller passed in (e.g. "AI Summary" deep-link
+  // from the inventory detail page).
+  const [selected, setSelected] = React.useState(() => new Set(params?.inventory_ids || []));
   const [mode, setMode] = React.useState("summary");
   const [question, setQuestion] = React.useState("");
   const [templates, setTemplates] = React.useState([]);
@@ -13,10 +15,22 @@ function ToolInsight() {
   const [liveContent, setLiveContent] = React.useState("");
   const toast = useToast();
 
+  const autoRanRef = React.useRef(false);
   React.useEffect(() => {
     api.inventories().then(rs => setInventories(rs || []));
     api.insightTemplates().then(d => setTemplates(d.templates || [])).catch(() => {});
   }, []);
+
+  // When a caller deep-links with inventory_ids + autorun=true (Inventory Detail
+  // "AI Summary" button), fire the summary as soon as templates / inventories
+  // load. Guarded so a hot-reload doesn't double-trigger.
+  React.useEffect(() => {
+    if (autoRanRef.current) return;
+    if (!params?.autorun) return;
+    if (selected.size === 0) return;
+    autoRanRef.current = true;
+    run();
+  }, [params?.autorun, selected]);
 
   function toggle(id) {
     setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
