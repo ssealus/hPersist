@@ -44,14 +44,24 @@ def test_parse_not_found_marks_flag_and_empties_fields(fixtures_dir):
     assert result["spare_bom"] == []
 
 
-def test_parse_product_without_bom_yields_details_but_no_rows(fixtures_dir):
-    # P52562-B21 is a leaf Spare PN — PartSurfer shows the product line but no
-    # child BOM. Parser must still extract the product details and `not_found`
-    # must stay False.
-    result = parse(_load(fixtures_dir, "product_no_bom.html"))
+def test_parse_grouped_repeater_layout_for_new_products(fixtures_dir):
+    # P52562-B21 (DL380 Gen11) uses the rptRoot/gvProGeneral layout — no
+    # gridSpareBOM at all. Parser must walk the per-category repeater and
+    # surface a flat row list with the same schema as the legacy path.
+    result = parse(_load(fixtures_dir, "product_grouped_bom.html"))
     assert result["not_found"] is False
     assert result["product"].get("product_number") == "P52562-B21"
-    assert result["spare_bom"] == []
+    assert len(result["spare_bom"]) >= 40, "should harvest ~47 parts across 31 categories"
+
+    # Categories come from KeywordLabel — expect a known set populated.
+    cats = {row["category"] for row in result["spare_bom"]}
+    assert "PDU" in cats
+    assert "Power Supply" in cats
+
+    # Every row keeps the uniform schema and m_part_number defaults to the parent.
+    for row in result["spare_bom"]:
+        assert set(row.keys()) == set(SBOM_COLUMNS)
+        assert row["m_part_number"] == "P52562-B21"
 
 
 def test_parse_empty_html_is_treated_as_not_found():

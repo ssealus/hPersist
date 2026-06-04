@@ -16,12 +16,12 @@ from pathlib import Path
 
 # Pin the DB URL BEFORE any app module imports — `app.config` resolves env at
 # import time, then `app.db` builds its engine from `settings.db.url`. We point
-# everything at a file in the per-session tmp dir.
-_TMP_DB = Path(os.environ.get("PYTEST_TMP_DB", ""))
-if not _TMP_DB:
-    import tempfile
-    _TMP_DB = Path(tempfile.mkdtemp(prefix="hpersist-test-")) / "test.db"
-    os.environ["HPERSIST_DB__URL"] = f"sqlite:///{_TMP_DB}"
+# everything at a per-session tmp file. We ALWAYS override whatever the shell /
+# .env had, so a stray `HPERSIST_DB__URL` pointing at the user's dev DB doesn't
+# get wiped by the tests' schema reset.
+import tempfile
+_TMP_DB = Path(tempfile.mkdtemp(prefix="hpersist-test-")) / "test.db"
+os.environ["HPERSIST_DB__URL"] = f"sqlite:///{_TMP_DB}"
 
 # ruff: noqa: E402 — imports below are deliberately deferred so the env var above
 # takes effect before pydantic-settings reads it.
