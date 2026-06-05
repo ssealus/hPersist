@@ -17,11 +17,11 @@ function ToolRedfish() {
   React.useEffect(() => { api.redfishEndpoints().then(setEndpoints); api.redfishHistory().then(setHistory); }, []);
 
   async function send() {
-    if (!host) { toast.push("host required", "err"); return; }
+    if (!host) { toast.push(t("tool_redfish.toast_host_required"), "err"); return; }
     setBusy(true);
     try {
       let parsedBody = null;
-      if (body.trim()) try { parsedBody = JSON.parse(body); } catch { toast.push("invalid JSON body", "err"); setBusy(false); return; }
+      if (body.trim()) try { parsedBody = JSON.parse(body); } catch { toast.push(t("tool_redfish.toast_invalid_json"), "err"); setBusy(false); return; }
       const r = await api.redfishTest({ host, username: user, password: pass, method, path, tls, body: parsedBody, timeout: 8 });
       setResult(r);
       api.redfishHistory().then(setHistory);
@@ -38,44 +38,44 @@ function ToolRedfish() {
     setPath(h.path || "/redfish/v1/");
     setTls(h.tls || "warn-only");
     setBody(h.request_body ? JSON.stringify(h.request_body, null, 2) : "");
-    toast.push("Restored — re-enter password to send", "ok");
+    toast.push(t("tool_redfish.toast_restored"), "ok");
   }
 
   return (
     <div className="screen">
-      <header className="screen-head"><h1 className="t-h1">Redfish tester</h1></header>
+      <header className="screen-head"><h1 className="t-h1">{t("tool_redfish.title")}</h1></header>
 
       <section className="grid" style={{gridTemplateColumns: "1fr 1fr", gap: 16}}>
         <div className="card">
-          <div className="card-head"><h3>Request</h3></div>
-          <Field label="iLO host or IP *"><input className="input t-mono" placeholder="10.0.0.10" value={host} onChange={e => setHost(e.target.value)} /></Field>
+          <div className="card-head"><h3>{t("tool_redfish.section_request")}</h3></div>
+          <Field label={t("tool_redfish.field_host")}><input className="input t-mono" placeholder="10.0.0.10" value={host} onChange={e => setHost(e.target.value)} /></Field>
           <div className="grid grid-2">
-            <Field label="Username"><input className="input t-mono" value={user} onChange={e => setUser(e.target.value)} /></Field>
-            <Field label="Password"><input className="input t-mono" type="password" value={pass} onChange={e => setPass(e.target.value)} /></Field>
+            <Field label={t("tool_redfish.field_username")}><input className="input t-mono" value={user} onChange={e => setUser(e.target.value)} /></Field>
+            <Field label={t("tool_redfish.field_password")}><input className="input t-mono" type="password" value={pass} onChange={e => setPass(e.target.value)} /></Field>
           </div>
           <div className="grid grid-2">
-            <Field label="Method">
+            <Field label={t("tool_redfish.field_method")}>
               <select className="input" value={method} onChange={e => setMethod(e.target.value)}>
                 <option>GET</option><option>POST</option><option>PATCH</option><option>DELETE</option>
               </select>
             </Field>
-            <Field label="TLS">
+            <Field label={t("tool_redfish.field_tls")}>
               <select className="input" value={tls} onChange={e => setTls(e.target.value)}>
                 <option value="strict">strict</option><option value="warn-only">warn-only</option><option value="off">off</option>
               </select>
             </Field>
           </div>
-          <Field label="Path">
+          <Field label={t("tool_redfish.field_path")}>
             <input className="input t-mono" value={path} onChange={e => setPath(e.target.value)} list="rf-endpoints" />
             <datalist id="rf-endpoints">{endpoints.map(p => <option key={p} value={p} />)}</datalist>
           </Field>
           {method !== "GET" && (
-            <Field label="JSON body"><textarea className="textarea t-mono" rows={5} value={body} onChange={e => setBody(e.target.value)} /></Field>
+            <Field label={t("tool_redfish.field_json_body")}><textarea className="textarea t-mono" rows={5} value={body} onChange={e => setBody(e.target.value)} /></Field>
           )}
-          <button className="btn primary" onClick={send} disabled={busy} style={{marginTop:8}}>{busy ? <Spinner /> : <Icon.Plus />} Send</button>
+          <button className="btn primary" onClick={send} disabled={busy} style={{marginTop:8}}>{busy ? <Spinner /> : <Icon.Plus />} {t("common.send")}</button>
 
           <div style={{marginTop: 16}}>
-            <div className="t-muted t-small">Common endpoints</div>
+            <div className="t-muted t-small">{t("tool_redfish.common_endpoints")}</div>
             <div className="row" style={{flexWrap: "wrap", gap: 4, marginTop: 6}}>
               {endpoints.slice(0, 12).map(p => (
                 <button key={p} className="chip" onClick={() => setPath(p)}>{p}</button>
@@ -85,26 +85,26 @@ function ToolRedfish() {
         </div>
 
         <div className="card">
-          <div className="card-head"><h3>Response</h3>{result && <span className={"pill " + (result.ok ? "ok" : "err")}><span className="dot"/>{result.status} · {result.ms}ms</span>}</div>
+          <div className="card-head"><h3>{t("tool_redfish.section_response")}</h3>{result && <span className={"pill " + (result.ok ? "ok" : "err")}><span className="dot"/>{result.status} · {result.ms}ms</span>}</div>
           {result ? (
             <>
               {result.error ? <div className="err-panel">{result.error}</div> : null}
               <pre className="codeblock">{JSON.stringify(result.body || result.headers, null, 2)}</pre>
             </>
-          ) : <Empty msg="No request sent yet." />}
+          ) : <Empty msg={t("tool_redfish.no_request_sent")} />}
         </div>
       </section>
 
       <section className="card">
         <div className="card-head">
-          <h3>History</h3>
-          <span className="t-muted t-small">click a row to restore — password is never stored</span>
+          <h3>{t("tool_redfish.section_history")}</h3>
+          <span className="t-muted t-small">{t("tool_redfish.history_hint")}</span>
         </div>
         <table className="table compact">
-          <thead><tr><th>Host</th><th>Method</th><th>Path</th><th>User</th><th>Status</th><th>RTT</th></tr></thead>
+          <thead><tr><th>{t("tool_redfish.col_host")}</th><th>{t("tool_redfish.col_method")}</th><th>{t("tool_redfish.col_path")}</th><th>{t("tool_redfish.col_user")}</th><th>{t("tool_redfish.col_status")}</th><th>{t("tool_redfish.col_rtt")}</th></tr></thead>
           <tbody>
             {history.map((h, i) => (
-              <tr key={i} className="row-clickable" onClick={() => restoreFromHistory(h)} title="Click to restore into the form">
+              <tr key={i} className="row-clickable" onClick={() => restoreFromHistory(h)} title={t("tool_redfish.restore_tooltip")}>
                 <td className="t-mono">{h.host || "—"}{h.port && h.port !== 443 ? ":" + h.port : ""}</td>
                 <td className="t-mono">{h.method}</td>
                 <td className="t-mono">{h.path}</td>
@@ -114,7 +114,7 @@ function ToolRedfish() {
               </tr>
             ))}
             {history.length === 0 && (
-              <tr><td colSpan="6" className="t-muted" style={{textAlign:"center", padding:"16px"}}>No requests sent yet.</td></tr>
+              <tr><td colSpan="6" className="t-muted" style={{textAlign:"center", padding:"16px"}}>{t("tool_redfish.no_history_yet")}</td></tr>
             )}
           </tbody>
         </table>

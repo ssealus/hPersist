@@ -35,9 +35,9 @@ function Dashboard({ go }) {
             ]} />
             <div style={{flex:1}}>
               <HBar items={[
-                { label: "OK",      value: health.ok,   color: "var(--accent)" },
-                { label: "Warning", value: health.warn, color: "var(--warn)" },
-                { label: "Critical",value: health.err,  color: "var(--err)" },
+                { label: t("overview.health_ok"),       value: health.ok,   color: "var(--accent)" },
+                { label: t("overview.health_warning"),  value: health.warn, color: "var(--warn)" },
+                { label: t("overview.health_critical"), value: health.err,  color: "var(--err)" },
               ]} />
             </div>
           </div>
@@ -73,7 +73,7 @@ function Dashboard({ go }) {
         {data.recent.length ? (
           <table className="table">
             <thead><tr>
-              <th>Name</th><th>Organization</th><th>Mode</th><th>Servers</th><th>Status</th><th>When</th>
+              <th>{t("overview.col_name")}</th><th>{t("overview.col_organization")}</th><th>{t("overview.col_mode")}</th><th>{t("overview.col_servers")}</th><th>{t("overview.col_status")}</th><th>{t("overview.col_when")}</th>
             </tr></thead>
             <tbody>
               {data.recent.map(i => (

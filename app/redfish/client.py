@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import ssl
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import httpx
@@ -66,7 +66,7 @@ class RedfishClient:
         self._session_path: str | None = None
         self._base = f"https://{host}:{port}" if port != 443 else f"https://{host}"
 
-    async def __aenter__(self) -> "RedfishClient":
+    async def __aenter__(self) -> RedfishClient:
         auth_header = "Basic " + base64.b64encode(
             f"{self.creds.username}:{self.creds.password}".encode()
         ).decode()

@@ -58,16 +58,36 @@ function Sparkline({ points, h = 28 }) {
   );
 }
 
+// DailyBars — vertical bar chart for daily-counts series. Replaces Sparkline
+// for "runs per day" data where lines connecting zeros look misleading.
+function DailyBars({ points, h = 64, color = "var(--accent)" }) {
+  const max = Math.max(1, ...points);
+  return (
+    <div className="daily-bars" style={{ height: h }}>
+      {points.map((v, i) => (
+        <div key={i} className="daily-bar-wrap" title={`day -${points.length - 1 - i}: ${v}`}>
+          <div className="daily-bar"
+               style={{
+                 height: v > 0 ? `${(v / max) * 100}%` : "2px",
+                 background: v > 0 ? color : "var(--line)",
+                 opacity: v > 0 ? 1 : 0.6,
+               }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function StatusPill({ status }) {
   const map = {
-    "complete":          { cls: "ok",      label: "Complete" },
-    "complete-warn":     { cls: "warn",    label: "Complete · warnings" },
-    "in-progress":       { cls: "info",    label: "In progress" },
-    "awaiting-results":  { cls: "outline", label: "Awaiting results" },
-    "failed":            { cls: "err",     label: "Failed" },
-    "ok":                { cls: "ok",      label: "Healthy" },
-    "warn":              { cls: "warn",    label: "Warning" },
-    "err":               { cls: "err",     label: "Critical" },
+    "complete":          { cls: "ok",      label: t("status.complete") },
+    "complete-warn":     { cls: "warn",    label: t("status.complete_warn") },
+    "in-progress":       { cls: "info",    label: t("status.in_progress") },
+    "awaiting-results":  { cls: "outline", label: t("status.awaiting_results") },
+    "failed":            { cls: "err",     label: t("status.failed") },
+    "ok":                { cls: "ok",      label: t("status.healthy") },
+    "warn":              { cls: "warn",    label: t("status.warning") },
+    "err":               { cls: "err",     label: t("status.critical") },
   };
   const s = map[status] || { cls: "outline", label: status };
   return <span className={"pill " + s.cls}><span className="dot" />{s.label}</span>;

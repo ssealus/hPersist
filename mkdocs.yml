@@ -1,0 +1,106 @@
+site_name: hPersist
+site_description: HPE iLO Redfish inventory collector — local and Smart Hands modes
+site_url: https://ssealus.github.io/hPersist/
+site_author: ssealus
+
+repo_name: ssealus/hPersist
+repo_url: https://github.com/ssealus/hPersist
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  custom_dir: overrides    # adds Google Search Console verification meta tag in <head>
+  logo: screenshots/dashboard.png  # falls back; replace with logo.svg when ready
+  favicon: screenshots/dashboard.png
+
+  palette:
+    # dark mode by default (matches the app's own default theme)
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+
+  font:
+    text: Geist
+    code: Geist Mono
+
+  features:
+    - navigation.instant       # SPA-like nav, no full reload
+    - navigation.tracking      # update URL hash as you scroll
+    - navigation.sections      # render top-level items as sections
+    - navigation.expand        # auto-expand sidebar tree
+    - navigation.top           # back-to-top button
+    - navigation.footer        # prev / next at the bottom
+    - search.suggest
+    - search.highlight
+    - content.code.copy        # one-click copy on code blocks
+    - content.action.edit      # "edit this page on GitHub"
+    - toc.follow
+    - announce.dismiss
+
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 90%
+      height: auto
+      zoomable: true
+      draggable: true
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/network-bg.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ssealus/hPersist
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Overview: index.md
+  - Architecture: ARCHITECTURE.md
+  - Extending: EXTENDING.md
+  - Roadmap: ROADMAP.md
+
+copyright: >-
+  Apache-2.0 licensed ·
+  <a href="https://github.com/ssealus/hPersist">github.com/ssealus/hPersist</a>

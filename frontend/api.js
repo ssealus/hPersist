@@ -64,6 +64,8 @@
     redfishTest:        (body) => api.post("/tools/redfish-test", body),
     redfishHistory:     () => api.get("/tools/redfish-test/history"),
     redfishEndpoints:   () => api.get("/tools/redfish-test/endpoints"),
+    partsurferSearch:   (q, refresh) => api.get("/tools/partsurfer/search?q=" + encodeURIComponent(q) + (refresh ? "&refresh=true" : "")),
+    bomCompare:         (a, b) => api.get("/tools/bom-compare?a=" + encodeURIComponent(a) + "&b=" + encodeURIComponent(b)),
     fleet:              () => api.get("/stats/fleet"),
     rollup:             (days) => api.get("/stats/rollup?window_days=" + (days || 30)),
     statsExportUrl:     (days) => BASE + "/stats/export?window_days=" + (days || 30),
@@ -71,6 +73,44 @@
     locale:             (code) => api.get("/locales/" + code),
     getSettings:        () => api.get("/settings"),
     patchSettings:      (body) => request("PATCH", "/settings", body),
+    insightRun:         (body) => api.post("/insight/run", body),
+    insightTest:        () => api.post("/insight/test"),
+    insightTemplates:   () => api.get("/insight/report-templates"),
+    insightRunStream:   async function* (body) {
+      // Async iterator over SSE events from /insight/run/stream.
+      // Yields: {event:"reasoning_delta"|"content_delta", data:{text}} | {event:"done", data:{...}} | {event:"error", data:{detail}}
+      const res = await fetch(BASE + "/insight/run/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "text/event-stream" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok && res.status !== 200) {
+        let detail = res.statusText;
+        try { const j = await res.json(); detail = j.detail || detail; } catch {}
+        throw new Error(detail);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        // Split on blank-line separator (SSE event delimiter).
+        let idx;
+        while ((idx = buf.indexOf("\n\n")) >= 0) {
+          const raw = buf.slice(0, idx);
+          buf = buf.slice(idx + 2);
+          let evt = "message"; let data = "";
+          for (const line of raw.split("\n")) {
+            if (line.startsWith("event:")) evt = line.slice(6).trim();
+            else if (line.startsWith("data:")) data += line.slice(5).trim();
+          }
+          if (!data) continue;
+          try { yield { event: evt, data: JSON.parse(data) }; } catch {}
+        }
+      }
+    },
     exportBlob:         async (body) => {
       const res = await fetch(BASE + "/exports", {
         method: "POST",

@@ -14,7 +14,6 @@ from app.redfish.collectors.processor import ProcessorCollector
 from app.redfish.collectors.storage import StorageCollector
 from app.redfish.collectors.system import SystemCollector
 
-
 COLLECTORS: list[BaseCollector] = [
     SystemCollector(),
     ManagerCollector(),

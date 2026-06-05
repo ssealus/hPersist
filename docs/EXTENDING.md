@@ -92,7 +92,7 @@ the same six touch-points) applies to every other tool in `docs/ROADMAP.md`.
 **1. Backend module.** Pure business logic, no FastAPI or React in here:
 
 ```python
-# app/tools/license_audit.py
+# app/tools/license_audit/__init__.py  (or license_audit/audit.py — each tool lives in its own subdir)
 from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -128,7 +128,8 @@ def audit(session: Session) -> list[LicenseRow]:
 from fastapi import APIRouter, Depends            # add Depends
 from sqlalchemy.orm import Session                # new
 from app.db import get_session                    # new
-from app.tools import license_audit, redfish_tester  # add license_audit
+from app.tools.redfish import tester as redfish_tester
+from app.tools.license_audit import audit as license_audit  # new
 
 # … existing routes …
 

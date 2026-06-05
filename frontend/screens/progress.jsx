@@ -26,24 +26,24 @@ function CollectionProgress({ go, params }) {
   return (
     <div className="screen">
       <header className="screen-head">
-        <h1 className="t-h1">Collecting · {name || id}</h1>
+        <h1 className="t-h1">{t("progress.collecting_title").replace("{name}", name || id)}</h1>
         <div className="row" style={{gap:8}}>
           <StatusPill status={job.state === "done" ? (failed ? "complete-warn" : "complete") : "in-progress"} />
-          <button className="btn ghost sm" onClick={() => go("inventories.detail", { id, name })}>Open inventory <Icon.Right /></button>
+          <button className="btn ghost sm" onClick={() => go("inventories.detail", { id, name })}>{t("progress.open_inventory")} <Icon.Right /></button>
         </div>
       </header>
 
       <section className="kpi-row">
-        <Kpi label="Total" value={job.total} />
-        <Kpi label="OK" value={ok} />
-        <Kpi label="Failed" value={failed} />
-        <Kpi label="In flight" value={rows.length - ok - failed} />
+        <Kpi label={t("progress.kpi_total")} value={job.total} />
+        <Kpi label={t("progress.kpi_ok")} value={ok} />
+        <Kpi label={t("progress.kpi_failed")} value={failed} />
+        <Kpi label={t("progress.kpi_in_flight")} value={rows.length - ok - failed} />
       </section>
 
       <section className="card">
-        <div className="card-head"><h3>Hosts</h3></div>
+        <div className="card-head"><h3>{t("progress.section_hosts")}</h3></div>
         <table className="table compact">
-          <thead><tr><th>Host</th><th>Stage</th><th>Progress</th><th>Components</th><th>Duration</th><th>Notes</th></tr></thead>
+          <thead><tr><th>{t("progress.col_host")}</th><th>{t("progress.col_stage")}</th><th>{t("progress.col_progress")}</th><th>{t("progress.col_components")}</th><th>{t("progress.col_duration")}</th><th>{t("progress.col_notes")}</th></tr></thead>
           <tbody>
             {rows.sort((a, b) => a.host.localeCompare(b.host)).map(r => (
               <tr key={r.host}>

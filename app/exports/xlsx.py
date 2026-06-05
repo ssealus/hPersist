@@ -9,7 +9,6 @@ from openpyxl.utils import get_column_letter
 
 from app.exports.builder import ExportSheet
 
-
 HEADER_FONT = Font(name="Calibri", size=10, bold=True, color="0F1F1A")
 HEADER_FILL = PatternFill("solid", fgColor="E6FFF1")
 BODY_FONT = Font(name="Calibri", size=10)

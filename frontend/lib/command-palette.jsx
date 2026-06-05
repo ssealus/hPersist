@@ -5,13 +5,13 @@ function CommandPalette({ open, close, go }) {
   React.useEffect(() => { if (open) setTimeout(() => document.getElementById("cmdk-input")?.focus(), 30); }, [open]);
   if (!open) return null;
   const all = [
-    { id: "addinv", label: "Create new inventory", hint: "Add inventory" },
-    { id: "inventories", label: "All inventories" },
-    { id: "servers", label: "All servers" },
-    { id: "tool.scan", label: "Run network scan" },
-    { id: "tool.redfish", label: "Test Redfish endpoint" },
-    { id: "stats", label: "View telemetry" },
-    { id: "settings", label: "Settings" },
+    { id: "addinv",       label: t("nav.add_inventory") },
+    { id: "inventories",  label: t("nav.inventories") },
+    { id: "servers",      label: t("nav.all_servers") },
+    { id: "tool.scan",    label: t("tools.network_scanner") },
+    { id: "tool.redfish", label: t("tools.redfish_tester") },
+    { id: "stats",        label: t("nav.stats") },
+    { id: "settings",     label: t("nav.settings") },
   ];
   const filtered = all.filter(x => x.label.toLowerCase().includes(q.toLowerCase()));
   return (
@@ -20,7 +20,7 @@ function CommandPalette({ open, close, go }) {
         <div className="hd" style={{gap: 8}}>
           <Icon.Search />
           <input id="cmdk-input" className="input" value={q} onChange={e => setQ(e.target.value)}
-                 placeholder="Type a command, server, IP, SN…"
+                 placeholder={t("app.search_placeholder")}
                  style={{border:0, background:"transparent", height: 24, padding: 0, fontSize: 14}} />
           <span className="kbd">ESC</span>
         </div>
@@ -30,7 +30,6 @@ function CommandPalette({ open, close, go }) {
                  onClick={() => { go(it.id); close(); }}>
               <Icon.Right />
               <span>{it.label}</span>
-              {it.hint && <span className="t-dim" style={{marginLeft:"auto"}}>{it.hint}</span>}
             </div>
           ))}
         </div>

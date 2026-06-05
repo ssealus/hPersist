@@ -26,7 +26,7 @@ async def preview(cidr: str) -> dict:
     try:
         hosts = await expand_cidr(cidr)
     except ValueError as exc:
-        raise HTTPException(400, str(exc))
+        raise HTTPException(400, str(exc)) from exc
     return {"cidr": cidr, "host_count": len(hosts), "first": hosts[:8], "last": hosts[-3:]}
 
 
@@ -36,7 +36,7 @@ async def scan(cidr: str, concurrency: int = 64, timeout: float = 1.5, probe_red
     try:
         hosts = await expand_cidr(cidr)
     except ValueError as exc:
-        raise HTTPException(400, str(exc))
+        raise HTTPException(400, str(exc)) from exc
 
     async def gen():
         yield f"event: meta\ndata: {json.dumps({'total': len(hosts), 'cidr': cidr})}\n\n"

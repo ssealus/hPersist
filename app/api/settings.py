@@ -11,7 +11,10 @@ from app.models import UserSetting
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
-_ALLOWED = {"locale", "theme", "density", "direction", "accent"}
+_ALLOWED = {
+    "locale", "theme", "density", "direction", "accent",
+    "llm_base_url", "llm_api_key", "llm_model", "llm_anonymize", "llm_context_level",
+}
 
 
 @router.get("")

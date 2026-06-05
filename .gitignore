@@ -41,3 +41,5 @@ htmlcov/
 Thumbs.db
 *.swp
 *.swo
+.seed_bom_diff.py
+.seed_demo_rich.sh

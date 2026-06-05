@@ -61,6 +61,10 @@ const Icon = {
   Diff:   (p) => I(<><path d="M6 3v8m0 0l-2-2m2 2l2-2M10 13V5m0 0L8 7m2-2l2 2"/></>, p),
   Globe:  (p) => I(<><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 2 3 4 3 6s-1 4-3 6c-2-2-3-4-3-6s1-4 3-6z"/></>, p),
   Term:   (p) => I(<><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 7l2 2-2 2M9 11h3"/></>, p),
+  Sparkles:(p) => I(<>
+    <path d="M7 1.5L8.5 6.5L13 8L8.5 9.5L7 14.5L5.5 9.5L1 8L5.5 6.5Z" fill="currentColor" stroke="none"/>
+    <path d="M12.5 1.5L13 3L14.5 3.5L13 4L12.5 5.5L12 4L10.5 3.5L12 3Z" fill="currentColor" stroke="none"/>
+  </>, p),
 };
 Icon.ArrowRight = Icon.Right;
 Icon.ArrowLeft  = Icon.Left;

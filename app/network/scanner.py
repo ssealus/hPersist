@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import asyncio
 import ipaddress
-import time
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from typing import AsyncIterator
 
 from app.redfish.client import RedfishClient, RedfishCreds
 
@@ -52,7 +51,7 @@ async def _probe_tcp(ip: str, port: int, timeout: float) -> tuple[bool, float | 
         except Exception:
             pass
         return True, (loop.time() - started) * 1000
-    except (asyncio.TimeoutError, OSError):
+    except (TimeoutError, OSError):
         return False, None
 
 

@@ -17,17 +17,17 @@ When implementing one of these, the flow is:
 
 ## Deferred tools
 
-### [ ] Part lookup
-Search the fleet (and a bundled HPE catalog) for a part number, description
-or serial. Originally had `app/tools/part_lookup.py`; removed pre-MVP to
-keep the surface area small.
+### [x] PartSurfer search  *(shipped — MVP)*
+Look up HPE Spare BOM for any server in the fleet by serial / part /
+model. Deep-link from the server-detail page jumps straight into a
+pre-filled search.
 
-- Input: free-text, optional category filter.
-- Output: rows with PN, category, description, how many times seen in local
-  inventories, example servers (hostname/IP), manufacturer, source
-  (`local` vs `catalog`).
-- Open questions: source of truth for the catalog: bundle a snapshot vs
-  pull from HPE PartSurfer on demand.
+- Scrapes `partsurfer.hpe.com/Search.aspx` (no public API exists) with
+  selectolax; identifies as `hPersist/<version>` in User-Agent.
+- 7-day DB-backed TTL cache (`partsurfer_cache` table) keeps the tool
+  fast and PartSurfer happy.
+- Single search field accepts SN, PN, product number or model — same
+  UX as the live site.
 
 ### [ ] Firmware compare
 Roll up every server's installed firmware (BIOS, iLO, PSU, NIC, controllers)
@@ -39,15 +39,16 @@ the app, possibly refreshed from HPE SPP).
 - Severity logic should consider known CVEs, not just version distance.
 - Output also feeds the procurement export ("planned firmware upgrades").
 
-### [ ] BOM diff
-Compare bills-of-materials between two inventories — or two snapshots of
-the same fleet over time. Quick way to spot stolen RAM, swapped drives,
-or genuine ECO swaps after RMAs.
+### [x] BOM Compare  *(shipped — MVP)*
+Compare bills-of-materials between two inventories — quick way to spot
+stolen RAM, swapped drives, or genuine ECO swaps after RMAs.
 
-- Pick two inventories → diff at PN+location level.
-- Categorise diffs: added / removed / replaced (same slot, different PN) /
-  upgraded (same PN, capacity bump).
-- Export the diff as CSV/XLSX for procurement and audit.
+- Server matching by serial number (canonical, immune to hostname renames).
+- Component matching by (group, location): same slot, different PN → replaced;
+  same slot, capacity bump → upgraded.
+- Surfaces added / removed / replaced / upgraded per server plus server-level
+  delta (only-in-A vs only-in-B).
+- CSV/XLSX export deferred — happy to wire in once a real workflow demands it.
 
 ### [ ] License audit
 Enumerate iLO / OneView entitlements across the
@@ -56,11 +57,14 @@ fleet and flag expirations or under-licensed hosts.
 - Read iLO license info from Redfish `Managers/{id}/Oem/Hpe/License`.
 - Track expiry dates in the DB, surface upcoming expirations.
 
-### [ ] AI Insight
-Get an AI summary or complex analytics based on your invenories.
+### [x] AI Insight  *(shipped — MVP)*
+Get an AI summary or complex analytics based on your inventories.
 
-- OpenAI Compatible API
-- Modes: summmary, analytics, reports. 
+- OpenAI-compatible API (base URL + key + model configured in Settings)
+- Modes: summary, free-form analytics, structured reports
+  (procurement / firmware upgrade / deprecated hardware)
+- Payload: per-server compact rows (model, SN, generation, iLO/BIOS,
+  CPU/RAM/storage/NIC summaries) — never raw Redfish or credentials 
 
 ---
 

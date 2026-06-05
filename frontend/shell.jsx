@@ -9,8 +9,11 @@ function Sidebar({ route, go, counts, theme, setTheme }) {
     { id: "servers", label: t("nav.all_servers"), icon: "Server", badge: counts.servers },
     { id: "addinv", label: t("nav.add_inventory"), icon: "Plus" },
     { section: t("nav.tools") },
-    { id: "tool.scan",    label: t("tools.network_scanner"), icon: "Net" },
-    { id: "tool.redfish", label: t("tools.redfish_tester"),  icon: "Term" },
+    { id: "tool.scan",       label: t("tools.network_scanner"), icon: "Net" },
+    { id: "tool.redfish",    label: t("tools.redfish_tester"),  icon: "Term" },
+    { id: "tool.partsurfer", label: t("tools.partsurfer"),      icon: "Cube" },
+    { id: "tool.bomcompare", label: t("tools.bom_compare"),     icon: "Diff" },
+    { id: "tool.insight",    label: t("tools.ai_insight"),      icon: "Sparkles" },
     { section: t("nav.system") },
     { id: "stats",    label: t("nav.stats"),     icon: "Chart" },
     { id: "settings", label: t("nav.settings"),  icon: "Cog" },
@@ -21,7 +24,7 @@ function Sidebar({ route, go, counts, theme, setTheme }) {
         {/* <img src="logo.svg" alt="hPersist" width="24" height="24"
              style={{flex: "0 0 24px", display: "block"}} /> */}
         <div className="sb-name">h<b>Persist</b></div>
-        <div style={{marginLeft:"auto"}} className="t-micro">v0.0.1</div>
+        <div style={{marginLeft:"auto"}} className="t-micro">v0.0.2</div>
       </div>
 
       {items.map((it, i) => {
@@ -43,14 +46,10 @@ function Sidebar({ route, go, counts, theme, setTheme }) {
       })}
 
       <div className="sb-foot">
-        <div className="row"><span>collector</span><span className="ok">● online</span></div>
-        <div className="row"><span>db</span><span className="ok">sqlite · 12.4 MB</span></div>
-        <div className="row"><span>queue</span><span>0 / 4</span></div>
         <div style={{display:"flex", gap:6, marginTop: 8}}>
           <button className="btn ghost sm" style={{flex:1}} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            {theme === "dark" ? <Icon.Sun /> : <Icon.Moon />} {theme === "dark" ? "Light" : "Dark"}
+            {theme === "dark" ? <Icon.Sun /> : <Icon.Moon />} {theme === "dark" ? t("settings_page.theme_light") : t("settings_page.theme_dark")}
           </button>
-          <button className="btn ghost sm" title="Open docs"><Icon.Doc /></button>
         </div>
       </div>
     </aside>
@@ -72,7 +71,7 @@ function Topbar({ route, go, openCommand }) {
       <div className="tb-spacer" />
       <div className="tb-search" onClick={openCommand}>
         <Icon.Search />
-        <span>Jump to inventory, server, command…</span>
+        <span>{t("app.search_placeholder")}</span>
       </div>
       {/* <button className="tb-iconbtn" title="Logs"><Icon.Logs /></button>
       <button className="tb-iconbtn" title="Refresh"><Icon.Refresh /></button> */}
@@ -99,6 +98,9 @@ function useCrumbs(route) {
     "export.builder":    [{label:"Procurement export"}],
     "tool.scan":    [{label:t("nav.tools")}, {label:t("tools.network_scanner")}],
     "tool.redfish": [{label:t("nav.tools")}, {label:t("tools.redfish_tester")}],
+    "tool.insight": [{label:t("nav.tools")}, {label:t("tools.ai_insight")}],
+    "tool.partsurfer": [{label:t("nav.tools")}, {label:t("tools.partsurfer")}],
+    "tool.bomcompare": [{label:t("nav.tools")}, {label:t("tools.bom_compare")}],
     "stats":   [{label:t("nav.stats")}],
     "settings":[{label:t("nav.settings")}],
   };

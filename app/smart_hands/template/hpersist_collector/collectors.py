@@ -6,11 +6,10 @@ archive ships to a stranger's host where simpler layout = fewer surprises.
 from __future__ import annotations
 
 import re
-import time
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from .client import RedfishClient, RedfishError
+from .client import RedfishError
 
 
 def _g(d: dict, *path, default=None):

@@ -1,6 +1,6 @@
 [project]
 name = "hpersist"
-version = "0.0.1"
+version = "0.0.2"
 description = "HPE configuration collector — iLO 4/5/6 over Redfish"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -18,6 +18,18 @@ dependencies = [
     "python-multipart>=0.0.9",
     "aiofiles>=23.2",
     "psycopg[binary]>=3.1",
+    "selectolax>=0.3.21",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocs-glightbox>=0.4",
 ]
 
 [project.scripts]
@@ -29,3 +41,37 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning:pydantic.*",
+    "ignore::DeprecationWarning:sqlalchemy.*",
+    # datetime.utcnow() — pre-3.12 idiom used throughout the codebase. Will be
+    # migrated to datetime.now(tz=UTC) as a separate cleanup; not a test concern.
+    "ignore:datetime.datetime.utcnow.*:DeprecationWarning",
+    "ignore:datetime.datetime.utcfromtimestamp.*:DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = ["migrations/versions", "frontend"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "B",   # flake8-bugbear (likely bugs)
+    "UP",  # pyupgrade (modern python)
+]
+ignore = [
+    "E501",  # line length (already handled by line-length=110)
+    "B008",  # function-call-in-default-arg (FastAPI's Depends pattern)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B018"]  # useless-expression — fine in asserts

@@ -58,7 +58,25 @@ def inventory_overview(session: Session, inv: Inventory) -> dict[str, Any]:
             "unknown": sum(1 for s in servers if not s.health),
         },
         "ilo_distribution": dict(Counter((s.ilo_generation or "unknown", s.ilo_firmware or "?") for s in servers).most_common()),
+        # Flat string form for the UI — "iLO 5 · 2.46" → 4. Keeps card markup simple.
+        "ilo_firmware_distribution": dict(
+            Counter(
+                f"{s.ilo_generation or '?'} · {s.ilo_firmware or '?'}"
+                for s in servers
+            ).most_common()
+        ),
         "model_distribution": dict(Counter(s.model or "unknown" for s in servers).most_common()),
+        "generation_distribution": dict(
+            Counter(s.generation or "unknown" for s in servers).most_common()
+        ),
+        "power_state_distribution": dict(
+            Counter((s.power_state or "unknown") for s in servers).most_common()
+        ),
+        # BIOS firmware mix — surfaces drift on identical models (security /
+        # patching risk). Sibling to ilo_firmware_distribution above.
+        "bios_distribution": dict(
+            Counter((s.bios_version or "unknown") for s in servers).most_common()
+        ),
         "memory_configurations": dict(
             Counter(
                 f"{round(s.total_memory_gb)} GB"

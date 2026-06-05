@@ -57,7 +57,7 @@ class RedfishClient:
         self._cache: dict[str, Any] = {}
         self._base = f"https://{host}:{port}" if port != 443 else f"https://{host}"
 
-    async def __aenter__(self) -> "RedfishClient":
+    async def __aenter__(self) -> RedfishClient:
         auth_header = "Basic " + base64.b64encode(
             f"{self.creds.username}:{self.creds.password}".encode()
         ).decode()

@@ -32,7 +32,7 @@ def export(req: ExportRequest, session: Session = Depends(get_session)) -> Respo
         "inventory_ids": req.inventory_ids,
     })
     sheets = build_sheets(session, inventories, options)
-    filename_base = "_".join((i.name.replace(" ", "-")[:24] for i in inventories[:2])) or "hpersist-export"
+    filename_base = "_".join(i.name.replace(" ", "-")[:24] for i in inventories[:2]) or "hpersist-export"
 
     if req.format == "xlsx":
         data = render_xlsx(sheets, title=filename_base)

@@ -61,7 +61,7 @@ What you'll see:
 ─────────────────────────────────────────
   organisation : Vertex Pharma
   description  : Q2 audit. Mixed iLO 4/5/6.
-  generator    : hPersist 0.0.1
+  generator    : hPersist 0.0.2
   seed         : a7c4f9b2…
 
 Collecting 18 host(s), concurrency=8…
