@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -88,32 +89,50 @@ def version() -> dict:
 
 _REVALIDATE_SUFFIXES = (".jsx", ".js", ".css", ".html", ".json", ".svg")
 
+# Allow-list regex for SPA-served static paths. CodeQL's py/path-injection
+# query recognises an early-return regex match as a sanitizer. Allowed chars:
+# alphanumerics, dot, slash, dash, underscore. Allowed extensions: only the
+# ones the frontend actually ships (extend if the asset palette grows).
+_SAFE_SPA_PATH = re.compile(
+    r"^[A-Za-z0-9_\-./]+\.(jsx|js|css|html|json|svg|png|jpg|jpeg|ico|webp|woff|woff2|ttf|map)$"
+)
 
-def _confine(path: Path) -> Path:
-    """Re-validate `path` is inside FRONTEND_DIR. Defense-in-depth: even if a
-    caller forgets the check, the helpers below refuse to touch arbitrary FS."""
-    safe = path.resolve()
-    safe.relative_to(_FRONTEND_RESOLVED)   # raises ValueError if escape
-    return safe
+
+def _resolve_under_frontend(rel: str) -> Path | None:
+    """Resolve `rel` under FRONTEND_DIR if it's a syntactically-safe asset path.
+
+    Three layered checks — pass all three or we return None and let the caller
+    fall back to index.html:
+      1. Regex allow-list — rejects empty, traversal (``..``), absolute paths,
+         null bytes, anything with whitespace, and unknown extensions
+      2. ``Path.resolve(strict=True)`` — also raises if the file doesn't exist
+      3. ``relative_to(_FRONTEND_RESOLVED)`` — final containment check after
+         symlinks/aliases are resolved
+    """
+    if not _SAFE_SPA_PATH.fullmatch(rel) or ".." in rel:
+        return None
+    try:
+        resolved = (FRONTEND_DIR / rel).resolve(strict=True)
+        resolved.relative_to(_FRONTEND_RESOLVED)
+    except (ValueError, OSError):
+        return None
+    if not resolved.is_file():
+        return None
+    return resolved
 
 
 def _etag_for(path: Path) -> str:
-    safe = _confine(path)
-    st = safe.stat()
-    return f'W/"{hashlib.md5(f"{safe}-{st.st_size}-{int(st.st_mtime)}".encode()).hexdigest()}"'
+    st = path.stat()
+    return f'W/"{hashlib.md5(f"{path}-{st.st_size}-{int(st.st_mtime)}".encode()).hexdigest()}"'
 
 
 def _conditional_file(request: Request, path: Path, status_code: int = 200) -> Response:
-    try:
-        safe = _confine(path)
-    except (ValueError, OSError):
-        return Response(status_code=404)
-    if safe.suffix.lower() not in _REVALIDATE_SUFFIXES:
-        return FileResponse(safe, status_code=status_code)
-    etag = _etag_for(safe)
+    if path.suffix.lower() not in _REVALIDATE_SUFFIXES:
+        return FileResponse(path, status_code=status_code)
+    etag = _etag_for(path)
     if request.headers.get("if-none-match") == etag:
         return Response(status_code=304, headers={"ETag": etag, "Cache-Control": "no-cache"})
-    return FileResponse(safe, headers={"ETag": etag, "Cache-Control": "no-cache"}, status_code=status_code)
+    return FileResponse(path, headers={"ETag": etag, "Cache-Control": "no-cache"}, status_code=status_code)
 
 
 if FRONTEND_DIR.exists():
@@ -121,20 +140,21 @@ if FRONTEND_DIR.exists():
     if static_dir.exists():
         app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+    # `INDEX` is a single, constant path computed at startup — never touched by
+    # user input. _conditional_file() only ever sees this or a path that has
+    # already cleared _resolve_under_frontend()'s regex/strict/relative_to gates.
+    INDEX = (FRONTEND_DIR / "index.html").resolve()
+
     @app.get("/")
     def index(request: Request) -> Response:
-        return _conditional_file(request, FRONTEND_DIR / "index.html")
+        return _conditional_file(request, INDEX)
 
     @app.get("/{full_path:path}")
     def spa(request: Request, full_path: str) -> Response:
         # SPA fallback: real asset wins, otherwise serve index.html
         if full_path.startswith(("api/", "ws/", "static/")):
-            return _conditional_file(request, FRONTEND_DIR / "index.html", status_code=404)
-        try:
-            candidate = (FRONTEND_DIR / full_path).resolve()
-            candidate.relative_to(_FRONTEND_RESOLVED)
-        except (ValueError, OSError):
-            return _conditional_file(request, FRONTEND_DIR / "index.html")
-        if candidate.is_file():
+            return _conditional_file(request, INDEX, status_code=404)
+        candidate = _resolve_under_frontend(full_path)
+        if candidate is not None:
             return _conditional_file(request, candidate)
-        return _conditional_file(request, FRONTEND_DIR / "index.html")
+        return _conditional_file(request, INDEX)
