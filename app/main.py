@@ -89,18 +89,31 @@ def version() -> dict:
 _REVALIDATE_SUFFIXES = (".jsx", ".js", ".css", ".html", ".json", ".svg")
 
 
+def _confine(path: Path) -> Path:
+    """Re-validate `path` is inside FRONTEND_DIR. Defense-in-depth: even if a
+    caller forgets the check, the helpers below refuse to touch arbitrary FS."""
+    safe = path.resolve()
+    safe.relative_to(_FRONTEND_RESOLVED)   # raises ValueError if escape
+    return safe
+
+
 def _etag_for(path: Path) -> str:
-    st = path.stat()
-    return f'W/"{hashlib.md5(f"{path}-{st.st_size}-{int(st.st_mtime)}".encode()).hexdigest()}"'
+    safe = _confine(path)
+    st = safe.stat()
+    return f'W/"{hashlib.md5(f"{safe}-{st.st_size}-{int(st.st_mtime)}".encode()).hexdigest()}"'
 
 
 def _conditional_file(request: Request, path: Path, status_code: int = 200) -> Response:
-    if path.suffix.lower() not in _REVALIDATE_SUFFIXES:
-        return FileResponse(path, status_code=status_code)
-    etag = _etag_for(path)
+    try:
+        safe = _confine(path)
+    except (ValueError, OSError):
+        return Response(status_code=404)
+    if safe.suffix.lower() not in _REVALIDATE_SUFFIXES:
+        return FileResponse(safe, status_code=status_code)
+    etag = _etag_for(safe)
     if request.headers.get("if-none-match") == etag:
         return Response(status_code=304, headers={"ETag": etag, "Cache-Control": "no-cache"})
-    return FileResponse(path, headers={"ETag": etag, "Cache-Control": "no-cache"}, status_code=status_code)
+    return FileResponse(safe, headers={"ETag": etag, "Cache-Control": "no-cache"}, status_code=status_code)
 
 
 if FRONTEND_DIR.exists():

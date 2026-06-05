@@ -262,7 +262,14 @@ function InsightAnswer({ result }) {
 // Tiny markdown renderer — enough for the LLM's output: headings, bold/italic, code,
 // bullet lists, and pipe-tables. Keeps the bundle bundler-free.
 function renderMarkdown(src) {
-  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // Escape both element-content AND attribute-context delimiters — code fences
+  // like ```"; onclick="evil would otherwise break out of `data-lang="..."`.
+  const esc = s => s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
   const lines = src.split(/\r?\n/);
   let out = "";
   let i = 0;

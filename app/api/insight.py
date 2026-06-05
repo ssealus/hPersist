@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -12,6 +13,8 @@ from app.db import get_session
 from app.tools.insight import service
 from app.tools.insight.client import LLMConfigError, LLMHTTPError
 from app.tools.insight.prompts import REPORT_CHOICES
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/insight", tags=["insight"])
 
@@ -87,12 +90,19 @@ async def run_stream(body: InsightRunBody, session: Session = Depends(get_sessio
             ):
                 event = ev.pop("type")
                 yield f"event: {event}\ndata: {json.dumps(ev, ensure_ascii=False)}\n\n"
-        except LLMConfigError as exc:
-            yield f"event: error\ndata: {json.dumps({'status': 400, 'detail': str(exc)})}\n\n"
+        # Error events surface a curated `detail` string, never the raw exception:
+        # LLMHTTPError's message embeds the upstream response body, which can
+        # contain provider-side internals or secrets. We log the full text for
+        # debugging and ship a generic hint to the client (CodeQL py/stack-trace-exposure).
+        except LLMConfigError:
+            logger.warning("insight stream: LLM not configured")
+            yield f"event: error\ndata: {json.dumps({'status': 400, 'detail': 'LLM is not configured — set base URL, API key and model in Settings.'})}\n\n"
         except LLMHTTPError as exc:
-            yield f"event: error\ndata: {json.dumps({'status': 502, 'detail': str(exc)})}\n\n"
+            logger.warning("insight stream: upstream LLM error: %s", exc)
+            yield f"event: error\ndata: {json.dumps({'status': 502, 'detail': 'Upstream LLM error — see server logs.'})}\n\n"
         except ValueError as exc:
-            yield f"event: error\ndata: {json.dumps({'status': 400, 'detail': str(exc)})}\n\n"
+            logger.warning("insight stream: invalid request: %s", exc)
+            yield f"event: error\ndata: {json.dumps({'status': 400, 'detail': 'Invalid request — check mode/question/template.'})}\n\n"
 
     return StreamingResponse(
         gen(),
