@@ -467,6 +467,8 @@
   "insight": {
     "subtitle": "Выберите инвентори, попросите модель сделать сводку, анализ или отчёт.",
     "section_inventories": "Инвентори",
+    "clear_selection": "Сбросить",
+    "clear_selection_tooltip": "Снять выбор со всех инвентори",
     "section_query": "Запрос",
     "section_answer": "Ответ",
     "servers_total": "выбрано серверов: {count}",

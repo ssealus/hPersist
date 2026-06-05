@@ -467,6 +467,8 @@
   "insight": {
     "subtitle": "Pick inventories, ask the model to summarize, analyze or build a report.",
     "section_inventories": "Inventories",
+    "clear_selection": "Clear",
+    "clear_selection_tooltip": "Deselect all inventories",
     "section_query": "Query",
     "section_answer": "Answer",
     "servers_total": "{count} servers selected",

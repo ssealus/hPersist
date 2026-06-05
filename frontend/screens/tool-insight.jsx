@@ -89,14 +89,22 @@ function ToolInsight({ params }) {
       </header>
 
       <section className="grid" style={{gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.6fr)", gap: 16}}>
-        <div className="card">
+        <div className="card insight-pick-card">
           <div className="card-head">
-            <h3>{t("insight.section_inventories")}</h3>
-            <span className="t-muted t-small">{t("insight.servers_total").replace("{count}", totalServers)}</span>
+            <h3>{t("insight.section_inventories")} <span className="t-muted t-num">({inventories.length})</span></h3>
+            <div className="row" style={{gap:10, alignItems:"center"}}>
+              {selected.size > 0 && (
+                <button className="btn ghost sm" onClick={() => setSelected(new Set())} title={t("insight.clear_selection_tooltip")}>
+                  <Icon.X /> {t("insight.clear_selection")}
+                </button>
+              )}
+              <span className="t-muted t-small">{t("insight.servers_total").replace("{count}", totalServers)}</span>
+            </div>
           </div>
           {inventories.length === 0 ? (
             <Empty msg={t("insight.no_inventories")} />
           ) : (
+            <div className="insight-pick-scroll">
             <table className="table compact">
               <thead><tr><th></th><th>{t("insight.col_name")}</th><th>{t("insight.col_servers")}</th><th>{t("insight.col_status")}</th></tr></thead>
               <tbody>
@@ -110,6 +118,7 @@ function ToolInsight({ params }) {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 
