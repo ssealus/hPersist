@@ -39,15 +39,16 @@ the app, possibly refreshed from HPE SPP).
 - Severity logic should consider known CVEs, not just version distance.
 - Output also feeds the procurement export ("planned firmware upgrades").
 
-### [ ] BOM diff
-Compare bills-of-materials between two inventories — or two snapshots of
-the same fleet over time. Quick way to spot stolen RAM, swapped drives,
-or genuine ECO swaps after RMAs.
+### [x] BOM Compare  *(shipped — MVP)*
+Compare bills-of-materials between two inventories — quick way to spot
+stolen RAM, swapped drives, or genuine ECO swaps after RMAs.
 
-- Pick two inventories → diff at PN+location level.
-- Categorise diffs: added / removed / replaced (same slot, different PN) /
-  upgraded (same PN, capacity bump).
-- Export the diff as CSV/XLSX for procurement and audit.
+- Server matching by serial number (canonical, immune to hostname renames).
+- Component matching by (group, location): same slot, different PN → replaced;
+  same slot, capacity bump → upgraded.
+- Surfaces added / removed / replaced / upgraded per server plus server-level
+  delta (only-in-A vs only-in-B).
+- CSV/XLSX export deferred — happy to wire in once a real workflow demands it.
 
 ### [ ] License audit
 Enumerate iLO / OneView entitlements across the

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api.schemas import RedfishTestRequest
 from app.db import get_session
+from app.tools.bom_compare import service as bom_compare_service
 from app.tools.partsurfer import service as partsurfer_service
 from app.tools.partsurfer.client import PartSurferError
 from app.tools.redfish import tester as redfish_tester
@@ -51,3 +52,15 @@ async def partsurfer_search(
         return await partsurfer_service.search(session, q, force_refresh=refresh)
     except PartSurferError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.get("/bom-compare")
+def bom_compare(
+    a: str = Query(..., min_length=1, description="Inventory ID — side A"),
+    b: str = Query(..., min_length=1, description="Inventory ID — side B"),
+    session: Session = Depends(get_session),
+) -> dict:
+    try:
+        return bom_compare_service.compare(session, inventory_a_id=a, inventory_b_id=b)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

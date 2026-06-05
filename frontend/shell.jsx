@@ -12,6 +12,7 @@ function Sidebar({ route, go, counts, theme, setTheme }) {
     { id: "tool.scan",       label: t("tools.network_scanner"), icon: "Net" },
     { id: "tool.redfish",    label: t("tools.redfish_tester"),  icon: "Term" },
     { id: "tool.partsurfer", label: t("tools.partsurfer"),      icon: "Cube" },
+    { id: "tool.bomcompare", label: t("tools.bom_compare"),     icon: "Diff" },
     { id: "tool.insight",    label: t("tools.ai_insight"),      icon: "Sparkles" },
     { section: t("nav.system") },
     { id: "stats",    label: t("nav.stats"),     icon: "Chart" },
@@ -99,6 +100,7 @@ function useCrumbs(route) {
     "tool.redfish": [{label:t("nav.tools")}, {label:t("tools.redfish_tester")}],
     "tool.insight": [{label:t("nav.tools")}, {label:t("tools.ai_insight")}],
     "tool.partsurfer": [{label:t("nav.tools")}, {label:t("tools.partsurfer")}],
+    "tool.bomcompare": [{label:t("nav.tools")}, {label:t("tools.bom_compare")}],
     "stats":   [{label:t("nav.stats")}],
     "settings":[{label:t("nav.settings")}],
   };

@@ -119,6 +119,7 @@ function App() {
     case "tool.redfish": screen = <ToolRedfish go={go} />; break;
     case "tool.insight": screen = <ToolInsight go={go} params={route.params} />; break;
     case "tool.partsurfer": screen = <ToolPartSurfer go={go} params={route.params} />; break;
+    case "tool.bomcompare": screen = <ToolBomCompare go={go} />; break;
     case "stats": screen = <Telemetry go={go} />; break;
     case "settings": screen = <Settings go={go}
                                           locale={locale} setLocale={changeLocale}
@@ -170,6 +171,7 @@ function App() {
             ["tool.redfish","Tool · Redfish"],
             ["tool.insight","Tool · AI Insight"],
             ["tool.partsurfer","Tool · PartSurfer"],
+            ["tool.bomcompare","Tool · BOM Compare"],
             ["stats","Telemetry"],
             ["settings","Settings"],
           ].map(([r, l]) => (
