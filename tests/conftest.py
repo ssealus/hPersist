@@ -11,8 +11,6 @@ A dedicated test in `test_migration.py` exercises the alembic path itself.
 from __future__ import annotations
 
 import os
-from collections.abc import Iterator
-from pathlib import Path
 
 # Pin the DB URL BEFORE any app module imports — `app.config` resolves env at
 # import time, then `app.db` builds its engine from `settings.db.url`. We point
@@ -20,6 +18,9 @@ from pathlib import Path
 # .env had, so a stray `HPERSIST_DB__URL` pointing at the user's dev DB doesn't
 # get wiped by the tests' schema reset.
 import tempfile
+from collections.abc import Iterator
+from pathlib import Path
+
 _TMP_DB = Path(tempfile.mkdtemp(prefix="hpersist-test-")) / "test.db"
 os.environ["HPERSIST_DB__URL"] = f"sqlite:///{_TMP_DB}"
 

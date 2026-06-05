@@ -33,8 +33,8 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install MkDocs
-        run: pip install "mkdocs-material>=9.5"
+      - name: Install MkDocs + plugins
+        run: pip install -e ".[docs]"
 
       - name: Build
         run: mkdocs build --strict --site-dir _site
